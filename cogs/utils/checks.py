@@ -18,4 +18,4 @@ def channels_allowed(channels):
 def is_owner():
     def predicate(ctx):
         return ctx.message.author.id == config["owner_ids"]
-return commands.check(predicate)
+    return commands.check(predicate)
