@@ -27,8 +27,8 @@ class React:
             emoji = discord.utils.get(self.bot.get_all_emojis(), name='BeAdvised')
             await self.bot.add_reaction(message, emoji)
 
-        if 'fuck' in args and 'mathas' in args:
-            emoji = discord.utils.get(self.bot.get_all_emojis(), name='BeAdvised')
+        if 'overwatch' in args:
+            emoji = discord.utils.get(self.bot.get_all_emojis(), name='ULU')
             await self.bot.add_reaction(message, emoji)
 
 

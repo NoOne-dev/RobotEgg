@@ -2,6 +2,7 @@ import datetime
 import discord
 from discord.ext import commands
 from config import config
+from cogs.utils.checks import is_owner
 
 
 """
@@ -31,7 +32,7 @@ class Admin:
         
 
     @commands.command()
-    @commands.is_owner()
+    @is_owner()
     async def load(self, extension_name : str):
         """Loads an extension."""
         try:
@@ -42,7 +43,7 @@ class Admin:
         await self.bot.say(f"Loaded extension {extension_name}")
 
     @commands.command()
-    @commands.is_owner()
+    @is_owner()
     async def unload(self, extension_name : str):
         """Unloads an extension."""
         self.bot.unload_extension(extension_name)
