@@ -52,8 +52,8 @@ class Admin:
     @commands.command()
     async def uptime(self):
         """prints uptime."""
-        bot.unload_extension(extension_name)
-        await bot.say(f"Uptime: {self.timedelta_str(datetime.datetime.now() - startup)}")
+        self.bot.unload_extension(extension_name)
+        await self.bot.say(f"Uptime: {self.timedelta_str(datetime.datetime.now() - startup)}")
 
 
 def setup(bot):
