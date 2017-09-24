@@ -1,16 +1,12 @@
 import discord
 import asyncio
 import aiohttp
-import datetime
 from discord.ext import commands
 from config import config
 
 
 # Bot description
 description = config["description"]
-
-# Current time can be used for uptime
-startup_time = datetime.datetime.now()
 
 # Load these modules
 extensions = config["active_extensions"]
