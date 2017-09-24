@@ -52,7 +52,7 @@ class Admin:
     @commands.command()
     async def uptime(self):
         """prints uptime."""
-        await self.bot.say(f"Uptime: {self.timedelta_str(datetime.datetime.now() - startup)}")
+        await self.bot.say(f"Uptime: {self.timedelta_str(datetime.datetime.now() - self.startup)}")
 
 
 def setup(bot):
