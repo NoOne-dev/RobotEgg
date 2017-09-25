@@ -14,7 +14,7 @@ class Joke:
 
 
     @commands.command(pass_context=True, invoke_without_command=True)
-    @channels_allowed(["circlejerk", "testing"])
+    @channels_allowed(["circlejerk"])
     async def joke(self, ctx):
         await self.bot.send_typing(ctx.message.channel)
         try:

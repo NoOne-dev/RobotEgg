@@ -3,7 +3,7 @@ from discord.ext import commands
 
 def channels_allowed(channels):
     def predicate(ctx):
-        allowed = []
+        allowed = [config["channels"]["bot-commands"], config["channels"]["testing"]]
         try:
             for channel in channels:
                 allowed.append(config["channels"][channel])

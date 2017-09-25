@@ -53,7 +53,7 @@ class Bible:
 
 
     @commands.command(pass_context=True, invoke_without_command=True)
-    @channels_allowed(["circlejerk", "testing"])
+    @channels_allowed(["circlejerk"])
     async def random(self, ctx):
         await self.bot.send_typing(ctx.message.channel)
         try:
@@ -68,7 +68,7 @@ class Bible:
 
 
     @commands.command(pass_context=True, invoke_without_command=True)
-    @channels_allowed(["circlejerk", "testing"])
+    @channels_allowed(["circlejerk"])
     async def daily(self, ctx):
         await self.bot.send_typing(ctx.message.channel)
         try:
@@ -83,7 +83,7 @@ class Bible:
 
 
     @commands.command(pass_context=True, invoke_without_command=True)
-    @channels_allowed(["circlejerk", "testing"])
+    @channels_allowed(["circlejerk"])
     async def verse(self, ctx, *args):
         await self.bot.send_typing(ctx.message.channel)
         try:

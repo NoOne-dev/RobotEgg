@@ -22,18 +22,18 @@ class Admin:
         minutes, sec = divmod(r, 60)
 
         if minutes == 1 and sec == 1:
-            return f"{days} days, {hours} hours, {minutes} minute and {seconds} second."
+            return f"{days} days, {hours} hours, {minutes} minute and {sec} second."
         elif minutes > 1 and sec == 1:
-            return f"{days} days, {hours} hours, {minutes} minutes and {seconds} second."
+            return f"{days} days, {hours} hours, {minutes} minutes and {sec} second."
         elif minutes == 1 and sec > 1:
-            return f"{days} days, {hours} hours, {minutes} minute and {seconds} seconds."
+            return f"{days} days, {hours} hours, {minutes} minute and {sec} seconds."
         else:
-            return f"{days} days, {hours} hours, {minutes} minutes and {seconds} seconds."
-        
+            return f"{days} days, {hours} hours, {minutes} minutes and {sec} seconds."
+
 
     @commands.command()
     @is_owner()
-    async def load(self, extension_name : str):
+    async def load(self, extension_name: str):
         """Loads an extension."""
         try:
             self.bot.load_extension(extension_name)
@@ -44,15 +44,31 @@ class Admin:
 
     @commands.command()
     @is_owner()
-    async def unload(self, extension_name : str):
+    async def unload(self, extension_name: str):
         """Unloads an extension."""
         self.bot.unload_extension(extension_name)
         await self.bot.say(f"Unloaded {extension_name}.")
 
     @commands.command()
+    @is_owner()
+    async def active(self):
+        """lists active extensions."""
+        active_ext = ""
+        try:
+            for extension in tuple(self.bot.extensions):
+                active_ext += f"{extension}\n"
+            for cog in tuple(self.bot.cogs):
+                active_ext += f"{cog}\n"
+        except:
+            pass
+        await self.bot.say(active_ext)
+
+    @commands.command()
     async def uptime(self):
         """prints uptime."""
-        await self.bot.say(f"Uptime: {self.timedelta_str((datetime.datetime.now()-self.startup))}")
+        delta = datetime.datetime.now()-self.startup
+        delta_str = self.timedelta_str(delta)
+        await self.bot.say(f"Uptime: {delta_str}")
 
 
 def setup(bot):

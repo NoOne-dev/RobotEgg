@@ -101,7 +101,7 @@ class Status:
 
 
     @commands.command(pass_context=True, invoke_without_command=True)
-    @channels_allowed(["nlss-chat", "testing"])
+    @channels_allowed(["nlss-chat", "circlejerk"])
     async def status(self, ctx, *args):
         """Lists streams in specified or recommended way"""
         
