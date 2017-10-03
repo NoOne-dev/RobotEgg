@@ -30,9 +30,9 @@ class React:
         if 'overwatch' in args or 'overwatch,' in args:
             emoji = discord.utils.get(self.bot.get_all_emojis(), name='ULU')
             await self.bot.add_reaction(message, emoji)
-        
-        
-        if 'pickle' in args and args[args.index('pickle')+1] == 'rick':
+
+        ricks = ['rick', 'jidril', 'rickon', 'richard', 'dick', 'sheldon', 'young', 'mod', 'bick']
+        if 'pickle' in args and args[args.index('pickle')+1] in ricks:
             emoji = discord.utils.get(self.bot.get_all_emojis(), name='lionSalt')
             await self.bot.add_reaction(message, emoji)
 
