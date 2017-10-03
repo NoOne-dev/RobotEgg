@@ -11,11 +11,11 @@ class React:
 
     async def on_message(self, message):
         args = message.content.lower().split(' ')
-        reactions = {'anime': 'BeAdvised', 'mod': 'HyperAdvised', 'egg': 'EggGasm', 
+        getrole = {'anime': 'BeAdvised', 'mod': 'HyperAdvised', 'egg': 'EggGasm', 
                      'dan': 'DanAdvised', 'scringis': 'lionWut'}
 
-        if args[0] == '+getrole' and args[1] in reactions:
-            emoji = discord.utils.get(self.bot.get_all_emojis(), name=reactions[args[1]])
+        if args[0] == '+getrole' and args[1] in getrole:
+            emoji = discord.utils.get(self.bot.get_all_emojis(), name=getrole[args[1]])
             await self.bot.add_reaction(message, emoji)
 
 
@@ -27,8 +27,13 @@ class React:
             emoji = discord.utils.get(self.bot.get_all_emojis(), name='BeAdvised')
             await self.bot.add_reaction(message, emoji)
 
-        if 'overwatch' in args:
+        if 'overwatch' in args or 'overwatch,' in args:
             emoji = discord.utils.get(self.bot.get_all_emojis(), name='ULU')
+            await self.bot.add_reaction(message, emoji)
+        
+        
+        if 'pickle' in args and args[args.index('pickle')+1] == 'rick':
+            emoji = discord.utils.get(self.bot.get_all_emojis(), name='lionSalt')
             await self.bot.add_reaction(message, emoji)
 
 
