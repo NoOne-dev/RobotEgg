@@ -40,9 +40,10 @@ class React:
             emoji = discord.utils.get(self.bot.get_all_emojis(), name='nukeplz')
             await self.bot.add_reaction(message, emoji)
 
-        if message.author.id == '189229956386127872' and message.content == "don't at me" or message.content == "don't @ me":
-            channel = self.bot.get_channel('346601597335240704') 
-            await self.bot.send_message(channel, '<@!189229956386127872>')
+        dontatme = ["dont at me", "don't at me", "dont @ me", "don't @ me"]
+        if message.content.lower() in dontatme:
+            channel = self.bot.get_channel('346601597335240704')  #bot-commands
+            await self.bot.send_message(channel, f'<@!{message.author.id}>')
 
 # The setup fucntion below is neccesarry. Remember we give bot.add_cog() the name of the class in this case SimpleCog.
 # When we load the cog, we use the name of the file.
