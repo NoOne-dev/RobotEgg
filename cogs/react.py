@@ -31,11 +31,14 @@ class React:
             emoji = discord.utils.get(self.bot.get_all_emojis(), name='ULU')
             await self.bot.add_reaction(message, emoji)
 
-        ricks = ['rick', 'jidril', 'rickon', 'richard', 'dick', 'sheldon', 'young', 'mod', 'bick']
+        ricks = ['rick', 'jidril', 'rickon', 'richard', 'dick', 'sheldon', 'young', 'mod', 'bick', 'yeet', 'wek', 'song']
         if 'pickle' in args and args[args.index('pickle')+1] in ricks:
             emoji = discord.utils.get(self.bot.get_all_emojis(), name='lionSalt')
             await self.bot.add_reaction(message, emoji)
 
+        if 'delete' in args and args[args.index('delete')+1] == 'this' and args[args.index('delete')+2] == 'server':
+            emoji = discord.utils.get(self.bot.get_all_emojis(), name='nukeplz')
+            await self.bot.add_reaction(message, emoji)
 
 # The setup fucntion below is neccesarry. Remember we give bot.add_cog() the name of the class in this case SimpleCog.
 # When we load the cog, we use the name of the file.
