@@ -11,7 +11,7 @@ class React:
 
     async def on_message(self, message):
         args = message.content.lower().split(' ')
-        getrole = {'anime': 'BeAdvised', 'mod': 'HyperAdvised', 'egg': 'EggGasm', 
+        getrole = {'anime': 'BeAdvised', 'mod': 'HyperAdvised', 'egg': 'eggGasm', 
                      'dan': 'DanAdvised', 'scringis': 'lionWut'}
 
         if args[0] == '+getrole' and args[1] in getrole:

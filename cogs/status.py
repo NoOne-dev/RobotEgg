@@ -118,7 +118,7 @@ class Status:
             main = self._check_main(twitch_status, self.streamers["main"]) # can be bool or object
 
             # Show status of main streamer if online
-            if main:
+            if main and args[0] != "others":
                 emb = self._build_embed(twitch_status, main)
                 await self.bot.say(content=None, embed=emb)
 
