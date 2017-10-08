@@ -9,7 +9,7 @@
   "owner_ids": ["Owner ID"],
 
   "channels": {
-    "bot-commands": "channel ID"
+    "bot-commands": "channel ID",
     "testing": "channel ID"
   },
 
