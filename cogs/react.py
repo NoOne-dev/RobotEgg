@@ -47,7 +47,7 @@ class React:
 
         realeuhours = ["real eu hours", "real eu hour", "false eu hours", "real na hours", "real oce hours"]
         if ' '.join(args[0:3]) in realeuhours:
-            emoji = discord.utils.get(self.bot.get_all_emojis(), name='flag_eu')
+            emoji = '🇪🇺'
             await self.bot.add_reaction(message, emoji)
 
 # The setup fucntion below is neccesarry. Remember we give bot.add_cog() the name of the class in this case SimpleCog.
