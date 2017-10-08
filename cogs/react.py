@@ -45,6 +45,11 @@ class React:
             channel = self.bot.get_channel('346601597335240704')  #bot-commands
             await self.bot.send_message(channel, f'<@!{message.author.id}>')
 
+        dontatme = ["real eu hours", "real eu hour", "false eu hours", "real na hours", "real oce hours"]
+        if message.content.lower() in realeuhours:
+            emoji = discord.utils.get(self.bot.get_all_emojis(), name='flag_eu')
+            await self.bot.add_reaction(message, emoji)
+
 # The setup fucntion below is neccesarry. Remember we give bot.add_cog() the name of the class in this case SimpleCog.
 # When we load the cog, we use the name of the file.
 def setup(bot):
