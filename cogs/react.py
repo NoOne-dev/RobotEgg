@@ -41,12 +41,12 @@ class React:
             await self.bot.add_reaction(message, emoji)
 
         dontatme = ["dont at me", "don't at me", "dont @ me", "don't @ me"]
-        if ' '.join(args[0:2]) in dontatme:
+        if ' '.join(args[0:3]) in dontatme:
             channel = self.bot.get_channel('346601597335240704')  #bot-commands
             await self.bot.send_message(channel, f'<@!{message.author.id}>')
 
         realeuhours = ["real eu hours", "real eu hour", "false eu hours", "real na hours", "real oce hours"]
-        if ' '.join(args[0:2]) in realeuhours:
+        if ' '.join(args[0:3]) in realeuhours:
             emoji = discord.utils.get(self.bot.get_all_emojis(), name='flag_eu')
             await self.bot.add_reaction(message, emoji)
 
