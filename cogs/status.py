@@ -123,6 +123,7 @@ class Status:
             response = await fetch(twitch_url, params=params)
             twitch_status = json.loads(response)
 
+            print(self.streamers["main"])
             main = self._check_main(twitch_status, self.streamers["main"]) # can be bool or object
 
             # Show status of main streamer if online
@@ -136,6 +137,7 @@ class Status:
                 await self.bot.say(content=None, embed=emb)
 
         except Exception as e:
+            print(f"{type(e).__name__}, {str(e)}")
             print(e)
             await self.bot.say(content=None, embed=create_error("getting stream information"))
 
