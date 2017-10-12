@@ -21,7 +21,7 @@ class Presence:
     @is_owner()
     async def presence(self, ctx, *args):
         await self.bot.change_presence(game=discord.Game(name=''.join(args)))
-        await self.bot.say(f"Changed to {''.join(args)}.")
+        await self.bot.say(f"Changed to {' '.join(args)}.")
 
 
 # The setup fucntion below is neccesarry. Remember we give bot.add_cog() the name of the class in this case SimpleCog.
