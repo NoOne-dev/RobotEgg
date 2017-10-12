@@ -74,6 +74,13 @@ class Status:
                 if twitch_status["_total"] > 0:
                     emb.description = f"**[Northernlion](https://twitch.tv/Northernlion)**\n"
                     emb.description += f"Northernlion is not streaming at the moment."
+                    
+                    when_url = "http://whenisnlss.com/when"
+                    try:
+                        response = await fetch(when_url)
+                        emb.description += f"\n{response}"
+                    except:
+                        print('Error getting when')
                 
                 else:
                     emb.color=0x333333
