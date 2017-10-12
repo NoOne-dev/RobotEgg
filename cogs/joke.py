@@ -16,6 +16,7 @@ class Joke:
     @commands.command(pass_context=True, invoke_without_command=True)
     @channels_allowed(["circlejerk"])
     async def joke(self, ctx):
+        """Gets you a random, HILARIOUS joke."""
         await self.bot.send_typing(ctx.message.channel)
         try:
             url = "https://icanhazdadjoke.com/"
@@ -23,7 +24,7 @@ class Joke:
 
             msg = await fetch(url, headers=header)
 
-            emb = discord.Embed(title=f"😂😂😂 WHO DID THIS 😂😂😂", description=msg, color=0xf4f142)          #Create the embed object
+            emb = discord.Embed(title=f"😂😂 WHO DID THIS? 😂😂", description=msg, color=0xf4f142)          #Create the embed object
             emb.set_footer(text=f"like share subscribe")
             await self.bot.say(content=None, embed=emb)
 

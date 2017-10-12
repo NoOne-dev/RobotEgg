@@ -65,7 +65,7 @@ class Admin:
 
     @commands.command()
     async def uptime(self):
-        """prints uptime."""
+        """Prints bot uptime."""
         delta = datetime.datetime.now()-self.startup
         delta_str = self.timedelta_str(delta)
         await self.bot.say(f"Uptime: {delta_str}")

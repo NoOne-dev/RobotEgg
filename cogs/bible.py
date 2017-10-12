@@ -55,6 +55,7 @@ class Bible:
     @commands.command(pass_context=True, invoke_without_command=True)
     @channels_allowed(["circlejerk"])
     async def random(self, ctx):
+        """Gives you a random bible verse."""
         await self.bot.send_typing(ctx.message.channel)
         try:
             msg = await self._get_verse("random")
@@ -70,6 +71,7 @@ class Bible:
     @commands.command(pass_context=True, invoke_without_command=True)
     @channels_allowed(["circlejerk"])
     async def daily(self, ctx):
+        """Gives you the daily bible verse."""
         await self.bot.send_typing(ctx.message.channel)
         try:
             msg = await self._get_verse("votd")
@@ -85,6 +87,7 @@ class Bible:
     @commands.command(pass_context=True, invoke_without_command=True)
     @channels_allowed(["circlejerk"])
     async def verse(self, ctx, *args):
+        """Gives you a specified bible verse. Use as: -verse genesis 1:3"""
         await self.bot.send_typing(ctx.message.channel)
         try:
             requested_verse = f"{args[0]} {args[1]}"
