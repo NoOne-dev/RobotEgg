@@ -78,6 +78,12 @@ class Status:
                 else:
                     emb.color=0x333333
                     emb.description = "**Offline**\nNo NLSS members are streaming at the moment."
+
+                    when_url = "http://whenisnlss.com/when"
+                    try:
+                        response = await fetch(when_url)
+                        emb.description += f"\n{response}"
+                    
                     return emb
 
             if twitch_status["_total"] > 0:
@@ -130,24 +136,6 @@ class Status:
         except Exception as e:
             print(e)
             await self.bot.say(content=None, embed=create_error("getting stream information"))
-
-
-    @commands.command(pass_context=True, invoke_without_command=True)
-    @channels_allowed(["nlss-chat", "circlejerk"])
-    async def when(self, ctx):
-        url = "http://whenisnlss.com/when"
-
-        await self.bot.send_typing(ctx.message.channel)
-
-        try:
-            response = await fetch(url)
-            emb = discord.Embed(color=0x933bce) 
-            emb.description = response
-            await self.bot.say(content=None, embed=emb)
-
-        except Exception as e:
-            print(e)
-            await self.bot.say(content=None, embed=create_error("getting _when_"))
 
 
 # When we load the cog, we use the name of the file.
