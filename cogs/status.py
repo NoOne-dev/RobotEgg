@@ -135,7 +135,7 @@ class Status:
     @commands.command(pass_context=True, invoke_without_command=True)
     @channels_allowed(["nlss-chat", "circlejerk"])
     async def when(self, ctx):
-        url = "whenisnlss.com/when"
+        url = "http://whenisnlss.com/when"
 
         await self.bot.send_typing(ctx.message.channel)
 
