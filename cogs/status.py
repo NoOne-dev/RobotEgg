@@ -83,6 +83,8 @@ class Status:
                     try:
                         response = await fetch(when_url)
                         emb.description += f"\n{response}"
+                    except:
+                        print('Error getting when')
                     
                     return emb
 
