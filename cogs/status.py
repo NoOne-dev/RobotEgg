@@ -52,7 +52,7 @@ class Status:
 
         emb = discord.Embed(url=main["channel"]["url"], color=0x933bce)  #Create the embed object
         emb.set_author(name=main["channel"]["display_name"], icon_url=main["channel"]["logo"])
-        emb.set_thumbnail(url=main["preview"]["medium"])   
+        emb.set_image(url=main["preview"]["large"])   
         emb.add_field(name="Live!", value=main["channel"]["status"], inline=False)
         emb.add_field(name="Currently playing", value=main["channel"]["game"], inline=False)
         emb.add_field(name="Viewers", value=main["viewers"])
