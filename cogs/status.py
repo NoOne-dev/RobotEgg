@@ -132,6 +132,7 @@ class Status:
             await self.bot.say(content=None, embed=create_error("getting stream information"))
 
 
+    @commands.command(pass_context=True, invoke_without_command=True)
     @channels_allowed(["nlss-chat", "circlejerk"])
     async def when(self):
         url = "whenisnlss.com/when"
