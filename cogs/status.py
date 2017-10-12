@@ -132,6 +132,23 @@ class Status:
             await self.bot.say(content=None, embed=create_error("getting stream information"))
 
 
+    @channels_allowed(["nlss-chat", "circlejerk"])
+    async def when(self):
+        url = "whenisnlss.com/when"
+
+        await self.bot.send_typing(ctx.message.channel)
+
+        try:
+            response = await fetch(url)
+            emb = discord.Embed(color=0x933bce) 
+            emb.description = response
+            await self.bot.say(content=None, embed=emb)
+
+        except Exception as e:
+            print(e)
+            await self.bot.say(content=None, embed=create_error("getting _when_"))
+
+
 # When we load the cog, we use the name of the file.
 def setup(bot):
     bot.add_cog(Status(bot))
