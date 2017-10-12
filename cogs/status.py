@@ -110,9 +110,15 @@ class Status:
 
     @commands.command(pass_context=True, invoke_without_command=True)
     @channels_allowed(["nlss-chat", "circlejerk"])
-    async def status(self, ctx, *args=[False]):
+    async def status(self, ctx, *args):
         """Lists streams in specified or recommended way"""
-        
+
+        arg = ""
+        try:
+            arg = args[0]
+        except:
+            arg = "None given"
+
         channels = ','.join(self.streamers["other"])
         twitch_url = "https://api.twitch.tv/kraken/streams/"
         params = dict(channel=channels, 
@@ -126,12 +132,12 @@ class Status:
             main = self._check_main(twitch_status, self.streamers["main"]) # can be bool or object
 
             # Show status of main streamer if online
-            if main and args[0] != "others":
+            if main and arg != "others":
                 emb = self._build_embed(twitch_status, main)
                 await self.bot.say(content=None, embed=emb)
 
             # Else or if specified, show other streamers instead
-            elif not main or args[0] == "others":
+            elif not main or arg == "others":
                 emb = await self._build_list(twitch_status, main)
                 await self.bot.say(content=None, embed=emb)
 
