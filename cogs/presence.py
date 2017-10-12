@@ -20,7 +20,7 @@ class Presence:
     @commands.command(pass_context=True, invoke_without_command=True)
     @is_owner()
     async def presence(self, ctx, *args):
-        await self.bot.change_presence(game=discord.Game(name=''.join(args)))
+        await self.bot.change_presence(game=discord.Game(name=' '.join(args)))
         await self.bot.say(f"Changed to {' '.join(args)}.")
 
 
