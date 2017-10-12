@@ -110,7 +110,7 @@ class Status:
 
     @commands.command(pass_context=True, invoke_without_command=True)
     @channels_allowed(["nlss-chat", "circlejerk"])
-    async def status(self, ctx, *args):
+    async def status(self, ctx, *args=[False]):
         """Lists streams in specified or recommended way"""
         
         channels = ','.join(self.streamers["other"])
@@ -123,7 +123,6 @@ class Status:
             response = await fetch(twitch_url, params=params)
             twitch_status = json.loads(response)
 
-            print(self.streamers["main"])
             main = self._check_main(twitch_status, self.streamers["main"]) # can be bool or object
 
             # Show status of main streamer if online
