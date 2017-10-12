@@ -16,7 +16,7 @@ class Admin:
         self.bot = bot
         self.startup = datetime.datetime.now()
 
-    def timedelta_str(dt):
+    def timedelta_str(self, dt):
         days = dt.days
         hours, r = divmod(dt.seconds, 3600)
         minutes, sec = divmod(r, 60)
