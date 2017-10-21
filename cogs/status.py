@@ -59,7 +59,7 @@ class Status:
         emb.add_field(name="Uptime", value=timestr)
 
         if twitch_status["_total"] > 1:
-            emb.set_footer(text=f"There are other streamers online too! Check `!status others`.")
+            emb.set_footer(text=f"There are other streamers online too! Check `-status others`.")
         else:
             emb.set_footer(text=f"No other streamers are online at this moment.")
         return emb

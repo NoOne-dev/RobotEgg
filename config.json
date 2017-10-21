@@ -29,7 +29,8 @@
     "cogs.bible",
     "cogs.presence",
     "cogs.react",
-    "cogs.admin"
+    "cogs.admin",
+    "cogs.birthday"
   ],
 
   "streamers": {
