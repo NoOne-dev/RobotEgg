@@ -78,8 +78,8 @@ class Birthday:
                 await self.bot.say(content=None, embed=create_error("entering into database."))
                 return False
             
-            emb = discord.Embed(color=0xffffff) 
-            emb.set_author(name=f"{author.nick if author.nick else author.name}") 
+            emb = discord.Embed(color=0xffffff)
+            emb.set_author(name=f"{author.nick if author.nick else author.name}")
             emb.description = "Birthday set."
             self.bot.say(content=None, embed=emb)
 
@@ -88,11 +88,11 @@ class Birthday:
             year = user.birthday.year
             month = user.birthday.month
             day = user.birthday.day
-            emb = discord.Embed(color=0xffffff) 
-            emb.set_author(name=f"{author.nick if author.nick else author.name}") 
+            emb = discord.Embed(color=0xffffff)
+            emb.set_author(name=f"{author.nick if author.nick else author.name}")
             emb.description = f"Birthday set to {year}-{month}-{day}. \
             You have changed your birthday {user.times_changed} times ({2-user.times_changed} times left)."
-            await self.bot.say(content=None, embed=emb)   
+            await self.bot.say(content=None, embed=emb)
 
         else:
             await self.bot.say(content=None, embed=create_error("Use -birthday `YYYY-MM-DD` to enter your birthday."))

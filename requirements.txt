@@ -1,2 +1,4 @@
 aiohttp==1.0.5
 discord.py==0.16.11
+psycopg2==2.7.31
+SQLAlchemy==1.1.14
