@@ -41,7 +41,8 @@ class Birthday:
             day = int(birthday_str[8:10])
             date = datetime.datetime(year, month, day).date()
             return date
-        except:
+        except Exception as e:
+            print(e)
             await self.bot.say(content=None, embed=create_error("creating birthday. Make sure to enter it as `YYYY-MM-DD` (example: `1969-04-20`)"))
             return False
 
@@ -55,8 +56,8 @@ class Birthday:
         birthday_str = ""
         try:
             birthday_str = args[0]
-        except:
-            pass
+        except Exception as e:
+            birthday_str = ""
 
         # Try to enter args into db
         if birthday_str:
@@ -75,7 +76,8 @@ class Birthday:
 
             try:
                 session.commit()
-            except:
+            except Exception as e:
+                print(e)
                 await self.bot.say(content=None, embed=create_error("entering into database."))
                 return False
             
