@@ -33,8 +33,7 @@ class Birthday:
     def __init__(self, bot):
         self.bot = bot
 
-
-    def _parse_birthday(self, birthday_str):
+    async def _parse_birthday(self, birthday_str):
         try:
             year = int(birthday_str[0:4])
             month = int(birthday_str[5:7])
