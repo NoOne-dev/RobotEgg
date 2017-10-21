@@ -43,13 +43,13 @@ class Birthday:
             return date
         except Exception as e:
             print(e)
-            await self.bot.say(content=None, embed=create_error("creating birthday. Make sure to enter it as `YYYY-MM-DD` (example: `1969-04-20`)"))
+            await self.bot.say(content=None, embed=create_error("creating birthday. Format: `YYYY-MM-DD`"))
             return False
 
 
     @commands.command(pass_context=True, invoke_without_command=True)
     @channels_allowed(["circlejerk"])
-    async def birthday(self, ctx, *args):
+    def birthday(self, ctx, *args):
         uid = ctx.message.author.id
         user = session.query(Birthday_Table).filter_by(uid=uid).first()
 
@@ -64,7 +64,7 @@ class Birthday:
             birthday = self._parse_birthday(birthday_str)
 
             if not birthday:
-                await self.bot.say(content=None, embed=create_error("Use -birthday `YYYY-MM-DD` to enter your birthday."))
+                self.bot.say(content=None, embed=create_error("Use -birthday `YYYY-MM-DD` to enter your birthday."))
                 return False
 
             if not user:
@@ -78,7 +78,7 @@ class Birthday:
                 session.commit()
             except Exception as e:
                 print(e)
-                await self.bot.say(content=None, embed=create_error("entering into database."))
+                self.bot.say(content=None, embed=create_error("entering into database."))
                 return False
             
             emb = discord.Embed(color=0xffffff)
@@ -95,10 +95,10 @@ class Birthday:
             emb.set_author(name=f"{author.nick if author.nick else author.name}")
             emb.description = f"Birthday set to {year}-{month}-{day}. \
             You have changed your birthday {user.times_changed} times ({2-user.times_changed} times left)."
-            await self.bot.say(content=None, embed=emb)
+            self.bot.say(content=None, embed=emb)
 
         else:
-            await self.bot.say(content=None, embed=create_error("Use -birthday `YYYY-MM-DD` to enter your birthday."))
+            self.bot.say(content=None, embed=create_error("Use -birthday `YYYY-MM-DD` to enter your birthday."))
 
 
 
