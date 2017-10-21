@@ -6,7 +6,7 @@ from config import config
 from cogs.utils.create_error import create_error
 from cogs.utils.checks import channels_allowed
 from sqlalchemy import create_engine  
-from sqlalchemy import Column, Integer, Date  
+from sqlalchemy import Column, String, Integer, Date  
 from sqlalchemy.ext.declarative import declarative_base  
 from sqlalchemy.orm import sessionmaker
 
@@ -20,7 +20,7 @@ Base = declarative_base()
 
 class Birthday_Table(Base):  
     __tablename__ = "birthday_table"
-    uid = Column(Integer, primary_key=True)
+    uid = Column(String, primary_key=True)
     birthday = Column(Date)
     times_changed = Column(Integer)
 
@@ -49,7 +49,7 @@ class Birthday:
     @commands.command(pass_context=True, invoke_without_command=True)
     @channels_allowed(["circlejerk"])
     async def birthday(self, ctx, *args):
-        uid = int(ctx.message.author.id)
+        uid = ctx.message.author.id
         user = session.query(Birthday_Table).filter_by(uid=uid).first()
 
         birthday_str = ""
