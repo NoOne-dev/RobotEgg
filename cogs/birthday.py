@@ -34,7 +34,7 @@ class Birthday:
     def __init__(self, bot):
         self.bot = bot
 
-    async def _parse_birthday(self, birthday_str):
+    def _parse_birthday(self, birthday_str):
         try:
             year = int(birthday_str[0:4])
             month = int(birthday_str[5:7])
@@ -43,7 +43,6 @@ class Birthday:
             return date
         except Exception as e:
             print(e)
-            await self.bot.say(content=None, embed=create_error("creating birthday. Format: `YYYY-MM-DD`"))
             return False
 
 
@@ -64,7 +63,7 @@ class Birthday:
             birthday = self._parse_birthday(birthday_str)
 
             if not birthday:
-                self.bot.say(content=None, embed=create_error("Use -birthday `YYYY-MM-DD` to enter your birthday."))
+                self.bot.say(content=None, embed=create_error("creating birthday. Format: `YYYY-MM-DD`"))
                 return False
 
             if not user:
