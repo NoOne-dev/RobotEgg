@@ -18,8 +18,7 @@
 
   "roles": {
     "voice": "in-voice",
-    "mod": "Mod",
-    "muted": "Temp Silenced"
+    "mod": "Mod"
   },
 
   "active_extensions": [
