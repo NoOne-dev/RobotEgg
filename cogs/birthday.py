@@ -3,7 +3,7 @@ import discord
 import os
 from discord.ext import commands
 from config import config
-from cogs.utils.checks import create_error
+from cogs.utils.create_error import create_error
 from sqlalchemy import create_engine  
 from sqlalchemy import Column, Integer, Date  
 from sqlalchemy.ext.declarative import declarative_base  
