@@ -89,23 +89,24 @@ class Birthday:
             emb.set_author(name=f"{author.nick if author.nick else author.name}")
             emb.description = f"Birthday set to {year}-{month}-{day}."
             if user.times_changed < 2:
-                emb.description += "\n_You have changed your birthday {user.times_changed} times ({2-user.times_changed} times left)._"
+                emb.description += f"\n_You have changed your birthday {user.times_changed} times ({2-user.times_changed} times left)._"
             await self.bot.say(content=None, embed=emb)
 
         else:
             await self.bot.say(content=None, embed=create_error("- use -birthday `YYYY-MM-DD` to enter your birthday."))
 
-    
+
+    @commands.command(pass_context=True, invoke_without_command=True)
     async def today(self, ctx):
         date = datetime.datetime.now().date()
         users = session.query(Birthday_Table).filter_by(birthday.day == date.day and birthday.month == date.month()).all()
-        
-        if users: 
+
+        if users:
             for user in users:
                 emb = discord.Embed(color=0xffffff)
                 emb.description = f"Happy birthday to <@!{user.uid}>"
                 await self.bot.say(content=None, embed=emb)
-        
+
         else:
             emb = discord.Embed(color=0xffffff)
             emb.description = f"No birthday bois today."
