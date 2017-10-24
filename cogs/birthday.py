@@ -48,7 +48,7 @@ class Birthday:
 
     @commands.command(pass_context=True, invoke_without_command=True)
     @channels_allowed(["circlejerk"])
-    async def birthday(self, ctx, birthday_str: str):
+    async def birthday(self, ctx, birthday_str = None):
         author = ctx.message.author
         uid = author.id
         user = session.query(Birthday_Table).filter_by(uid=uid).first()
