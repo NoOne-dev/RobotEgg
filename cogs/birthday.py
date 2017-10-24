@@ -1,3 +1,4 @@
+import asyncio
 import datetime
 import discord
 import os
@@ -20,11 +21,19 @@ Keep track of people's birthdays
 db   = create_engine(os.environ['DATABASE_URL'])
 Base = declarative_base()
 
+
 class Birthday_Table(Base):  
     __tablename__ = "birthday_table"
     uid = Column(String, primary_key=True)
     birthday = Column(Date)
     times_changed = Column(Integer)
+
+
+class Notified(Base):  
+    __tablename__ = "notified_today"
+    uid = Column(String, primary_key=True)
+    date = Column(Date)
+
 
 Session = sessionmaker(db)  
 session = Session()
@@ -35,6 +44,7 @@ class Birthday:
     """Keep track of people's birthdays"""
     def __init__(self, bot):
         self.bot = bot
+        self.notifier_bg_task = bot.loop.create_task(self.notifier_task())
 
 
     def _parse_birthday(self, birthday_str):
@@ -48,6 +58,41 @@ class Birthday:
 
     def _ordinal(self, n):
         return str(n)+("th" if 4 <= n%100 <= 20 else {1:"st", 2:"nd", 3:"rd"}.get(n%10, "th"))
+
+
+    def _check_today(self):
+        date = datetime.datetime.now().date()
+        return session.query(Birthday_Table)\
+                .filter(func.extract('day', Birthday_Table.birthday) == date.day)\
+                .filter(func.extract('month', Birthday_Table.birthday) == date.month)\
+                .all()
+
+
+    async def notifier_task(self):
+        """Runs a birthday notifier background task."""
+        await self.bot.wait_until_ready()
+
+        date = datetime.datetime.now().date()
+        users = self._check_today()
+
+        notified = session.query(Notified.uid).filter(Notified.date != date).all()
+
+        session.query(Notified).filter(Notified.date < date).all().delete()
+
+        for user in users:
+            if user.uid not in notified:
+                channel = self.bot.get_channel('346251033527320577')
+                emb = discord.Embed(color=0x76cef1)
+                age = self._ordinal(date.year - user.birthday.year)
+                emb.description = f":tada: Happy {age} birthday to <@!{user.uid}>! :tada:"
+                await self.bot.send_message(channel, embed=emb)
+
+                notif = Notified(uid=uid, date=date)
+                session.add(notif)
+
+        session.commit()
+        print("notified")
+        await asyncio.sleep(600)
 
 
     @commands.command(pass_context=True, invoke_without_command=True)
@@ -66,7 +111,7 @@ class Birthday:
                 return False
 
             if not user:
-                birthday = Birthday_Table(uid=uid, birthday=birthday, times_changed=0)
+                birthday = Birthday_Table(uid=uid, birthday=birthday, times_changed=1)
                 session.add(birthday)
             else:
                 user.birthday = birthday
@@ -82,7 +127,7 @@ class Birthday:
             
             emb = discord.Embed(color=0x76f2ac)
             emb.set_author(name=f"{author.nick if author.nick else author.name}")
-            emb.description = "Birthday set."
+            emb.description = f"Birthday set. Changed {user.times_changed}/3 times."
             await self.bot.say(content=None, embed=emb)
 
         elif user:
@@ -92,23 +137,17 @@ class Birthday:
             emb = discord.Embed(color=0xffffff)
             emb.set_author(name=f"{author.nick if author.nick else author.name}")
             emb.description = f"Birthday set to {year}-{month}-{day}."
-            if user.times_changed < 2:
-                emb.description += f"\n_You have changed your birthday {user.times_changed} times ({2-user.times_changed} times left)._"
+            emb.description += f"\n_You have changed your birthday {user.times_changed} times ({3-user.times_changed} times left)._"
             await self.bot.say(content=None, embed=emb)
 
         else:
             await self.bot.say(content=None, embed=create_error("- use -birthday `YYYY-MM-DD` to enter your birthday."))
 
 
-    @commands.command(pass_context=True, invoke_without_command=True)
-    async def today(self, ctx):
-        date = datetime.datetime.now().date()
-        users = session.query(Birthday_Table)\
-                .filter(func.extract('day', Birthday_Table.birthday) == date.day)\
-                .filter(func.extract('month', Birthday_Table.birthday) == date.month)\
-                .all()
-
-        if len(users) > 0:
+    @commands.command(invoke_without_command=True)
+    async def today(self):
+        users = _check_today()
+        if users:
             for user in users:
                 emb = discord.Embed(color=0x76cef1)
                 age = self._ordinal(date.year - user.birthday.year)
