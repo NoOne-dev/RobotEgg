@@ -5,6 +5,7 @@ from discord.ext import commands
 from config import config
 from cogs.utils.create_error import create_error
 from cogs.utils.checks import channels_allowed
+from cogs.utils.checks import is_owner
 from sqlalchemy import create_engine  
 from sqlalchemy import Column, String, Integer, Date  
 from sqlalchemy import func
@@ -118,6 +119,15 @@ class Birthday:
             emb = discord.Embed(color=0xffffff)
             emb.description = f"No birthday boys today. :slight_frown:"
             await self.bot.say(content=None, embed=emb)
+
+
+    @commands.command()
+    @channels_allowed(["circlejerk"])
+    @is_owner()
+    async def addchange(self, uid):
+        user = session.query(Birthday_Table).filter_by(uid=uid).first()
+        user.times_changed -= 1
+        session.commit()
 
 
 def setup(bot):
