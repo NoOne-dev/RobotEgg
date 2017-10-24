@@ -76,6 +76,7 @@ class Birthday:
         users = self._check_today()
 
         notified = session.query(Notified.uid).filter(Notified.date != date).all()
+        print(notified)
 
         session.query(Notified).filter(Notified.date < date).delete()
 
@@ -161,12 +162,17 @@ class Birthday:
 
 
     @commands.command()
-    @channels_allowed(["circlejerk"])
     @is_owner()
     async def addchange(self, uid):
         user = session.query(Birthday_Table).filter_by(uid=uid).first()
         user.times_changed -= 1
         session.commit()
+
+    @commands.command()
+    @is_owner()
+    async def rollback(self, uid):
+        Session.rollback()
+        await self.bot.say(":thinking:")
 
 
 def setup(bot):
