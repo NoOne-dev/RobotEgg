@@ -101,8 +101,8 @@ class Birthday:
     async def today(self, ctx):
         date = datetime.datetime.now().date()
         users = session.query(Birthday_Table)\
-                .filter(extract('day', Birthday_Table.birthday) == date.day)\
-                .filter(extract('month', Birthday_Table.birthday) == date.month)\
+                .filter(func.extract('day', Birthday_Table.birthday) == date.day)\
+                .filter(func.extract('month', Birthday_Table.birthday) == date.month)\
                 .all()
 
         if users:
