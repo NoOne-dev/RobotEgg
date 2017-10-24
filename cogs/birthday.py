@@ -127,7 +127,7 @@ class Birthday:
             
             emb = discord.Embed(color=0x76f2ac)
             emb.set_author(name=f"{author.nick if author.nick else author.name}")
-            emb.description = f"Birthday set. Changed {user.times_changed}/3 times."
+            emb.description = f"Birthday set. Changed {user.times_changed if user.times_changed else 1}/3 times."
             await self.bot.say(content=None, embed=emb)
 
         elif user:
