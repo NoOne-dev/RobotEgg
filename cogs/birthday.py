@@ -200,6 +200,13 @@ class Birthday:
         await self.bot.say("Notification table cleared.")
 
 
+    @commands.command()
+    @is_owner()
+    async def amount(self):
+        rows = session.query(Birthday_Table).count()
+        await self.bot.say(f"{rows} birthdays saved.")
+
+
 def setup(bot):
     bot.add_cog(Birthday(bot))
     
