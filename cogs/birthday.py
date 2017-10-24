@@ -81,7 +81,7 @@ class Birthday:
         session.query(Notified).filter(Notified.date < date).delete()
 
         for user in users:
-            if user.uid not in notified:
+            if notified is None or user.uid not in notified :
                 channel = self.bot.get_channel('346251033527320577')
                 emb = discord.Embed(color=0x76cef1)
                 age = self._ordinal(date.year - user.birthday.year)
