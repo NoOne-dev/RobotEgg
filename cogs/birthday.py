@@ -87,7 +87,7 @@ class Birthday:
                 emb.description = f":tada: Happy {age} birthday to <@!{user.uid}>! :tada:"
                 await self.bot.send_message(channel, embed=emb)
 
-                notif = Notified(uid=uid, date=date)
+                notif = Notified(uid=user.uid, date=date)
                 session.add(notif)
 
         session.commit()
