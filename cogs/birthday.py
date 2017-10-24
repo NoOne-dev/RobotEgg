@@ -48,15 +48,10 @@ class Birthday:
 
     @commands.command(pass_context=True, invoke_without_command=True)
     @channels_allowed(["circlejerk"])
-    async def birthday(self, ctx, *args):
-        uid = ctx.message.author.id
+    async def birthday(self, ctx, birthday_str: str):
+        author = ctx.message.author
+        uid = author.id
         user = session.query(Birthday_Table).filter_by(uid=uid).first()
-
-        birthday_str = ""
-        try:
-            birthday_str = args[0]
-        except Exception as e:
-            birthday_str = ""
 
         # Try to enter args into db
         if birthday_str:
@@ -86,7 +81,6 @@ class Birthday:
             await self.bot.say(content=None, embed=emb)
 
         elif user:
-            author = ctx.message.author
             year = user.birthday.year
             month = user.birthday.month
             day = user.birthday.day
@@ -97,7 +91,7 @@ class Birthday:
             await self.bot.say(content=None, embed=emb)
 
         else:
-            await self.bot.say(content=None, embed=create_error("Use -birthday `YYYY-MM-DD` to enter your birthday."))
+            await self.bot.say(content=None, embed=create_error("- use -birthday `YYYY-MM-DD` to enter your birthday."))
 
 
 
