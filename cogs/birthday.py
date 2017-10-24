@@ -35,12 +35,10 @@ class Birthday:
     def __init__(self, bot):
         self.bot = bot
 
+
     def _parse_birthday(self, birthday_str):
         try:
-            year = int(birthday_str[0:4])
-            month = int(birthday_str[5:7])
-            day = int(birthday_str[8:10])
-            date = datetime.datetime(year, month, day).date()
+            date = datetime.datetime.strptime(birthday_str, "%Y-%m-%d").date()
             return date
         except Exception as e:
             print(e)
