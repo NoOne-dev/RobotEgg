@@ -75,7 +75,7 @@ class Birthday:
         date = datetime.datetime.now().date()
         users = self._check_today()
 
-        notified = session.query(Notified.uid)
+        notified = session.query(Notified.uid).scalar()
         print(notified)
 
         session.query(Notified).filter(Notified.date < date).delete()
