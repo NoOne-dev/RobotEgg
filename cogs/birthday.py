@@ -48,7 +48,7 @@ class Birthday:
 
     @commands.command(pass_context=True, invoke_without_command=True)
     @channels_allowed(["circlejerk"])
-    def birthday(self, ctx, *args):
+    async def birthday(self, ctx, *args):
         uid = ctx.message.author.id
         user = session.query(Birthday_Table).filter_by(uid=uid).first()
 
@@ -63,7 +63,7 @@ class Birthday:
             birthday = self._parse_birthday(birthday_str)
 
             if not birthday:
-                self.bot.say(content=None, embed=create_error("creating birthday. Format: `YYYY-MM-DD`"))
+                await self.bot.say(content=None, embed=create_error("creating birthday. Format: `YYYY-MM-DD`"))
                 return False
 
             if not user:
@@ -77,13 +77,13 @@ class Birthday:
                 session.commit()
             except Exception as e:
                 print(e)
-                self.bot.say(content=None, embed=create_error("entering into database."))
+                await self.bot.say(content=None, embed=create_error("entering into database."))
                 return False
             
             emb = discord.Embed(color=0xffffff)
             emb.set_author(name=f"{author.nick if author.nick else author.name}")
             emb.description = "Birthday set."
-            self.bot.say(content=None, embed=emb)
+            await self.bot.say(content=None, embed=emb)
 
         elif user:
             author = ctx.message.author
@@ -94,10 +94,10 @@ class Birthday:
             emb.set_author(name=f"{author.nick if author.nick else author.name}")
             emb.description = f"Birthday set to {year}-{month}-{day}. \
             You have changed your birthday {user.times_changed} times ({2-user.times_changed} times left)."
-            self.bot.say(content=None, embed=emb)
+            await self.bot.say(content=None, embed=emb)
 
         else:
-            self.bot.say(content=None, embed=create_error("Use -birthday `YYYY-MM-DD` to enter your birthday."))
+            await self.bot.say(content=None, embed=create_error("Use -birthday `YYYY-MM-DD` to enter your birthday."))
 
 
 
