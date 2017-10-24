@@ -99,9 +99,9 @@ class Birthday:
     @commands.command(pass_context=True, invoke_without_command=True)
     async def today(self, ctx):
         date = datetime.datetime.now().date()
-        users = session.query(Birthday_Table)
-                .filter(extract('day', Birthday_Table.birthday) == date.day)
-                .filter(extract('month', Birthday_Table.birthday) == date.month)
+        users = session.query(Birthday_Table)\
+                .filter(extract('day', Birthday_Table.birthday) == date.day)\
+                .filter(extract('month', Birthday_Table.birthday) == date.month)\
                 .all()
 
         if users:
