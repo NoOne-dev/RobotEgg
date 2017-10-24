@@ -168,10 +168,11 @@ class Birthday:
         user.times_changed -= 1
         session.commit()
 
+
     @commands.command()
     @is_owner()
-    async def rollback(self, uid):
-        Session.rollback()
+    async def rollback(self):
+        session.rollback()
         await self.bot.say(":thinking:")
 
 
