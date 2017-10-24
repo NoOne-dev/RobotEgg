@@ -105,15 +105,15 @@ class Birthday:
                 .filter(func.extract('month', Birthday_Table.birthday) == date.month)\
                 .all()
 
-        if users:
+        if len(users) > 1:
             for user in users:
                 emb = discord.Embed(color=0xffffff)
-                emb.description = f"Happy birthday to <@!{user.uid}>"
+                emb.description = f":tada: Happy birthday to <@!{user.uid}>! :tada:"
                 await self.bot.say(content=None, embed=emb)
 
         else:
             emb = discord.Embed(color=0xffffff)
-            emb.description = f"No birthday bois today."
+            emb.description = f"No birthday boys today."
 
 
 def setup(bot):
