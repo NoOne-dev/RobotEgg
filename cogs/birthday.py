@@ -75,7 +75,7 @@ class Birthday:
         date = datetime.datetime.now().date()
         users = self._check_today()
 
-        notified = session.query(Notified.uid).filter(Notified.date != date).all()
+        notified = session.query(Notified.uid).filter(Notified.date == date).all()
         print(notified)
 
         session.query(Notified).filter(Notified.date < date).delete()
@@ -128,7 +128,7 @@ class Birthday:
             
             emb = discord.Embed(color=0x76f2ac)
             emb.set_author(name=f"{author.nick if author.nick else author.name}")
-            emb.description = f"Birthday set. Changed {user.times_changed if user.times_changed else 1}/3 times."
+            emb.description = f"Birthday set. Changed {user.times_changed if user else 1}/3 times."
             await self.bot.say(content=None, embed=emb)
 
         elif user:
@@ -174,6 +174,14 @@ class Birthday:
     async def rollback(self):
         session.rollback()
         await self.bot.say(":thinking:")
+
+
+    @commands.command()
+    @is_owner()
+    async def clear_notif(self):
+        session.query(Notified).delete()
+        session.commit()
+        await self.bot.say("ok i have done what you asked of me")
 
 
 def setup(bot):
