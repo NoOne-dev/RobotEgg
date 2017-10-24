@@ -105,7 +105,7 @@ class Birthday:
                 .filter(func.extract('month', Birthday_Table.birthday) == date.month)\
                 .all()
 
-        if len(users) > 1:
+        if len(users) > 0:
             for user in users:
                 emb = discord.Embed(color=0xffffff)
                 emb.description = f":tada: Happy birthday to <@!{user.uid}>! :tada:"
