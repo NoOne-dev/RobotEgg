@@ -62,10 +62,14 @@ class Birthday:
 
     def _check_today(self):
         date = datetime.datetime.now().date()
-        return session.query(Birthday_Table)\
+        try:
+            return session.query(Birthday_Table)\
                 .filter(func.extract('day', Birthday_Table.birthday) == date.day)\
                 .filter(func.extract('month', Birthday_Table.birthday) == date.month)\
                 .all()
+        except Exception as e:
+            print(e)
+            return False
 
 
     async def notifier_task(self):
@@ -75,28 +79,41 @@ class Birthday:
         date = datetime.datetime.now().date()
         users = self._check_today()
 
-        notified = session.query(Notified.uid).scalar()
-        print(notified)
+        try:
+            notified = session.query(Notified.uid).scalar()
+        except Exception as e:
+            print("Error getting notified ids.")
+            print(e)
 
-        session.query(Notified).filter(Notified.date < date).delete()
+        try:
+            session.query(Notified).filter(Notified.date < date).delete()
+        except Exception as e:
+            print("Error deleting old notified ids.")
+            print(e)
 
-        for user in users:
-            if notified is None or user.uid not in notified :
-                channel = self.bot.get_channel('346250610020057088')
-                age = self._ordinal(date.year - user.birthday.year)
-                msg = f":tada: Happy {age} birthday to <@!{user.uid}>! :tada:"
-                await self.bot.send_message(channel, msg)
+        if users:
+            for user in users:
+                if notified is None or user.uid not in notified:
+                    channel = self.bot.get_channel('346250610020057088')
+                    age = self._ordinal(date.year - user.birthday.year)
+                    msg = f":tada: Happy {age} birthday to <@!{user.uid}>! :tada:"
+                    await self.bot.send_message(channel, msg)
 
-                notif = Notified(uid=user.uid, date=date)
-                session.add(notif)
+                    notif = Notified(uid=user.uid, date=date)
+                    session.add(notif)
 
-        session.commit()
+        try:
+            session.commit()
+        except Exception as e:
+            print(e)
+
         await asyncio.sleep(600)
 
 
     @commands.command(pass_context=True, invoke_without_command=True)
     @channels_allowed(["circlejerk"])
-    async def birthday(self, ctx, birthday_str = None):
+    async def birthday(self, ctx, birthday_str=None):
+        """Add a birthday to the database. Usage: `-birthday YYYY-MM-DD`"""
         author = ctx.message.author
         uid = author.id
         user = session.query(Birthday_Table).filter_by(uid=uid).first()
@@ -123,7 +140,7 @@ class Birthday:
                 print(e)
                 await self.bot.say(content=None, embed=create_error("entering into database."))
                 return False
-            
+
             emb = discord.Embed(color=0x76f2ac)
             emb.set_author(name=f"{author.nick if author.nick else author.name}")
             emb.description = f"Birthday set. Changed {user.times_changed if user else 1}/3 times."
@@ -165,13 +182,14 @@ class Birthday:
         user = session.query(Birthday_Table).filter_by(uid=uid).first()
         user.times_changed -= 1
         session.commit()
+        await self.bot.say(f"A birthday change credit was added to <@!{uid}>.")
 
 
     @commands.command()
     @is_owner()
     async def rollback(self):
         session.rollback()
-        await self.bot.say(":thinking:")
+        await self.bot.say("Session rolled back.")
 
 
     @commands.command()
@@ -179,7 +197,7 @@ class Birthday:
     async def clear_notif(self):
         session.query(Notified).delete()
         session.commit()
-        await self.bot.say("ok i have done what you asked of me")
+        await self.bot.say("Notification table cleared.")
 
 
 def setup(bot):
