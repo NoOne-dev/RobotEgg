@@ -7,7 +7,7 @@ from cogs.utils.create_error import create_error
 from cogs.utils.checks import channels_allowed
 from sqlalchemy import create_engine  
 from sqlalchemy import Column, String, Integer, Date  
-from sqlalchemy import func.extract
+from sqlalchemy import func
 from sqlalchemy.ext.declarative import declarative_base  
 from sqlalchemy.orm import sessionmaker
 
