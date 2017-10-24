@@ -82,17 +82,15 @@ class Birthday:
 
         for user in users:
             if notified is None or user.uid not in notified :
-                channel = self.bot.get_channel('346251033527320577')
-                emb = discord.Embed(color=0x76cef1)
+                channel = self.bot.get_channel('346250610020057088')
                 age = self._ordinal(date.year - user.birthday.year)
-                emb.description = f":tada: Happy {age} birthday to <@!{user.uid}>! :tada:"
-                await self.bot.send_message(channel, embed=emb)
+                msg = f":tada: Happy {age} birthday to <@!{user.uid}>! :tada:"
+                await self.bot.send_message(channel, msg)
 
                 notif = Notified(uid=user.uid, date=date)
                 session.add(notif)
 
         session.commit()
-        print("notified")
         await asyncio.sleep(600)
 
 
