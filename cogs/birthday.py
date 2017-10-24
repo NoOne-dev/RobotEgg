@@ -110,7 +110,7 @@ class Birthday:
         if len(users) > 0:
             for user in users:
                 emb = discord.Embed(color=0x76cef1)
-                age = _ordinal(date.year - user.birthday.year)
+                age = self._ordinal(date.year - user.birthday.year)
                 emb.description = f":tada: Happy {age} birthday to <@!{user.uid}>! :tada:"
                 await self.bot.say(content=None, embed=emb)
 
