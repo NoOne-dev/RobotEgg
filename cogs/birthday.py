@@ -146,7 +146,7 @@ class Birthday:
 
     @commands.command(invoke_without_command=True)
     async def today(self):
-        users = _check_today()
+        users = self._check_today()
         if users:
             for user in users:
                 emb = discord.Embed(color=0x76cef1)
