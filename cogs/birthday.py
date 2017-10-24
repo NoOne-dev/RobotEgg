@@ -45,6 +45,10 @@ class Birthday:
             return False
 
 
+    def _ordnial(n):
+        return str(n)+("th" if 4 <= n%100 <= 20 else {1:"st", 2:"nd", 3:"rd"}.get(n%10, "th"))
+
+
     @commands.command(pass_context=True, invoke_without_command=True)
     @channels_allowed(["circlejerk"])
     async def birthday(self, ctx, birthday_str = None):
@@ -75,7 +79,7 @@ class Birthday:
                 await self.bot.say(content=None, embed=create_error("entering into database."))
                 return False
             
-            emb = discord.Embed(color=0xffffff)
+            emb = discord.Embed(color=0x76f2ac)
             emb.set_author(name=f"{author.nick if author.nick else author.name}")
             emb.description = "Birthday set."
             await self.bot.say(content=None, embed=emb)
@@ -105,13 +109,15 @@ class Birthday:
 
         if len(users) > 0:
             for user in users:
-                emb = discord.Embed(color=0xffffff)
-                emb.description = f":tada: Happy birthday to <@!{user.uid}>! :tada:"
+                emb = discord.Embed(color=0x76cef1)
+                age = _ordinal(date.year - user.birthday.year)
+                emb.description = f":tada: Happy {age} birthday to <@!{user.uid}>! :tada:"
                 await self.bot.say(content=None, embed=emb)
 
         else:
             emb = discord.Embed(color=0xffffff)
-            emb.description = f"No birthday boys today."
+            emb.description = f"No birthday boys today. :slight_frown:"
+            await self.bot.say(content=None, embed=emb)
 
 
 def setup(bot):
