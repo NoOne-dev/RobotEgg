@@ -77,7 +77,7 @@ class Birthday:
 
         notified = session.query(Notified.uid).filter(Notified.date != date).all()
 
-        session.query(Notified).filter(Notified.date < date).all().delete()
+        session.query(Notified).filter(Notified.date < date).delete()
 
         for user in users:
             if user.uid not in notified:
