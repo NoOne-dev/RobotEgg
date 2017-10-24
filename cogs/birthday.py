@@ -66,7 +66,8 @@ class Birthday:
                 session.add(birthday)
             else:
                 user.birthday = birthday
-                user.times_changed = user.times_changed+1
+                if uid != config["owner_ids"]:
+                    user.times_changed = user.times_changed+1
 
             try:
                 session.commit()
@@ -86,13 +87,28 @@ class Birthday:
             day = user.birthday.day
             emb = discord.Embed(color=0xffffff)
             emb.set_author(name=f"{author.nick if author.nick else author.name}")
-            emb.description = f"Birthday set to {year}-{month}-{day}. \
-            \n_You have changed your birthday {user.times_changed} times ({2-user.times_changed} times left)._"
+            emb.description = f"Birthday set to {year}-{month}-{day}."
+            if user.times_changed < 2:
+                emb.description += "\n_You have changed your birthday {user.times_changed} times ({2-user.times_changed} times left)._"
             await self.bot.say(content=None, embed=emb)
 
         else:
             await self.bot.say(content=None, embed=create_error("- use -birthday `YYYY-MM-DD` to enter your birthday."))
 
+    
+    async def today(self, ctx):
+        date = datetime.datetime.now().date()
+        users = session.query(Birthday_Table).filter_by(birthday.day == date.day and birthday.month == date.month()).all()
+        
+        if users: 
+            for user in users:
+                emb = discord.Embed(color=0xffffff)
+                emb.description = f"Happy birthday to <@!{user.uid}>"
+                await self.bot.say(content=None, embed=emb)
+        
+        else:
+            emb = discord.Embed(color=0xffffff)
+            emb.description = f"No birthday bois today."
 
 
 def setup(bot):
