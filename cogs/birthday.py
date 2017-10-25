@@ -162,6 +162,7 @@ class Birthday:
 
     @commands.command(invoke_without_command=True)
     async def today(self):
+        date = datetime.datetime.now().date()
         users = self._check_today()
         if users:
             for user in users:
