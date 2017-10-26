@@ -40,6 +40,9 @@ class React:
             emoji = discord.utils.get(self.bot.get_all_emojis(), name='nukeplz')
             await self.bot.add_reaction(message, emoji)
 
+        if 'dead' in args and args[args.index('dead')+1] == 'hours':
+            await self.bot.add_reaction(message, '☠️')
+
         dontatme = ["dont at me", "don't at me", "dont @ me", "don't @ me"]
         if ' '.join(args[0:3]) in dontatme:
             channel = self.bot.get_channel('346601597335240704')  #bot-commands
@@ -47,8 +50,7 @@ class React:
 
         realeuhours = ["real eu hours", "real eu hour", "false eu hours", "real na hours", "real oce hours"]
         if ' '.join(args[0:3]) in realeuhours:
-            emoji = '🇪🇺'
-            await self.bot.add_reaction(message, emoji)
+            await self.bot.add_reaction(message, '🇪🇺')
 
 # The setup fucntion below is neccesarry. Remember we give bot.add_cog() the name of the class in this case SimpleCog.
 # When we load the cog, we use the name of the file.
