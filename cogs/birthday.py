@@ -74,10 +74,12 @@ class Birthday:
 
     async def notifier_task(self):
         """Runs a birthday notifier background task."""
-        await self.bot.wait_until_ready()
+
 
         date = datetime.datetime.now().date()
         users = self._check_today()
+
+        print("Running notifier task")
 
         try:
             notified = session.query(Notified.uid).scalar()
