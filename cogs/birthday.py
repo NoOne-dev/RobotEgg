@@ -74,42 +74,44 @@ class Birthday:
 
     async def notifier_task(self):
         """Runs a birthday notifier background task."""
+        
+        await self.bot.wait_until_ready()
 
+        while not self.bot.is_closed:
+            date = datetime.datetime.now().date()
+            users = self._check_today()
 
-        date = datetime.datetime.now().date()
-        users = self._check_today()
+            print("Running notifier task")
 
-        print("Running notifier task")
+            try:
+                notified = session.query(Notified.uid).scalar()
+            except Exception as e:
+                print("Error getting notified ids.")
+                print(e)
 
-        try:
-            notified = session.query(Notified.uid).scalar()
-        except Exception as e:
-            print("Error getting notified ids.")
-            print(e)
+            try:
+                session.query(Notified).filter(Notified.date < date).delete()
+            except Exception as e:
+                print("Error deleting old notified ids.")
+                print(e)
 
-        try:
-            session.query(Notified).filter(Notified.date < date).delete()
-        except Exception as e:
-            print("Error deleting old notified ids.")
-            print(e)
+            if users:
+                for user in users:
+                    if notified is None or user.uid not in notified:
+                        channel = self.bot.get_channel('346250610020057088')
+                        age = self._ordinal(date.year - user.birthday.year)
+                        msg = f":tada: Happy {age} birthday to <@!{user.uid}>! :tada:"
+                        await self.bot.send_message(channel, msg)
 
-        if users:
-            for user in users:
-                if notified is None or user.uid not in notified:
-                    channel = self.bot.get_channel('346250610020057088')
-                    age = self._ordinal(date.year - user.birthday.year)
-                    msg = f":tada: Happy {age} birthday to <@!{user.uid}>! :tada:"
-                    await self.bot.send_message(channel, msg)
+                        notif = Notified(uid=user.uid, date=date)
+                        session.add(notif)
 
-                    notif = Notified(uid=user.uid, date=date)
-                    session.add(notif)
+            try:
+                session.commit()
+            except Exception as e:
+                print(e)
 
-        try:
-            session.commit()
-        except Exception as e:
-            print(e)
-
-        await asyncio.sleep(600)
+            await asyncio.sleep(600)
 
 
     @commands.command(pass_context=True, invoke_without_command=True)
