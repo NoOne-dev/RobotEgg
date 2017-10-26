@@ -41,7 +41,8 @@ class React:
             await self.bot.add_reaction(message, emoji)
 
         if 'dead' in args and args[args.index('dead')+1] == 'hours':
-            await self.bot.add_reaction(message, '☠️')
+            emoji = '💀'
+            await self.bot.add_reaction(message, emoji)
 
         dontatme = ["dont at me", "don't at me", "dont @ me", "don't @ me"]
         if ' '.join(args[0:3]) in dontatme:
@@ -50,7 +51,8 @@ class React:
 
         realeuhours = ["real eu hours", "real eu hour", "false eu hours", "real na hours", "real oce hours"]
         if ' '.join(args[0:3]) in realeuhours:
-            await self.bot.add_reaction(message, '🇪🇺')
+            emoji = '🇪🇺'
+            await self.bot.add_reaction(message, emoji)
 
 # The setup fucntion below is neccesarry. Remember we give bot.add_cog() the name of the class in this case SimpleCog.
 # When we load the cog, we use the name of the file.
