@@ -206,8 +206,9 @@ class Birthday:
     @commands.command()
     @is_owner()
     async def amount(self):
-        rows = session.query(Birthday_Table).count()
-        await self.bot.say(f"{rows} birthdays saved.")
+        bdays = session.query(Birthday_Table).count()
+        notif = session.query(Notified).count()
+        await self.bot.say(f"{bdays} birthdays saved. {notif} notified today.")
 
 
 def setup(bot):
