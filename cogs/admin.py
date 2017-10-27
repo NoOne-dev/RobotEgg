@@ -71,6 +71,14 @@ class Admin:
         await self.bot.say(f"Uptime: {delta_str}")
 
 
+    @commands.command()
+    @is_owner()
+    async def say_this(self, *args):
+        channel = self.bot.get_channel(args[0])
+        msg = ' '.join(args[1:])
+        await self.bot.send_message(channel, msg)
+
+
 def setup(bot):
     bot.add_cog(Admin(bot))
     
