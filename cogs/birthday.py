@@ -44,7 +44,6 @@ class Birthday:
     """Keep track of people's birthdays"""
     def __init__(self, bot):
         self.bot = bot
-        self.notifier_bg_task = bot.loop.create_task(self.notifier_task())
 
 
     def _parse_birthday(self, birthday_str):
@@ -111,7 +110,7 @@ class Birthday:
             except Exception as e:
                 print(e)
 
-            await asyncio.sleep(600)
+            await asyncio.sleep(20)
 
 
     @commands.command(pass_context=True, invoke_without_command=True)
@@ -214,5 +213,6 @@ class Birthday:
 
 
 def setup(bot):
+    self.bot.loop.create_task(self.notifier_task())
     bot.add_cog(Birthday(bot))
     
