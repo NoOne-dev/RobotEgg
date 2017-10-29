@@ -212,7 +212,9 @@ class Birthday:
         await self.bot.say(f"{bdays} birthdays saved. {notif} notified today.")
 
 
-def setup(bot):
     self.bot.loop.create_task(self.notifier_task())
+
+
+def setup(bot):
     bot.add_cog(Birthday(bot))
     
