@@ -44,6 +44,7 @@ class Birthday:
     """Keep track of people's birthdays"""
     def __init__(self, bot):
         self.bot = bot
+        bot.loop.create_task(self.notifier_task())
 
 
     def _parse_birthday(self, birthday_str):
@@ -210,9 +211,6 @@ class Birthday:
         bdays = session.query(Birthday_Table).count()
         notif = session.query(Notified).count()
         await self.bot.say(f"{bdays} birthdays saved. {notif} notified today.")
-
-
-    self.bot.loop.create_task(self.notifier_task())
 
 
 def setup(bot):
