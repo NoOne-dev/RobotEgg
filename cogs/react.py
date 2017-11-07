@@ -18,7 +18,7 @@ class React:
             emoji = discord.utils.get(self.bot.get_all_emojis(), name=getrole[args[1]])
             await self.bot.add_reaction(message, emoji)
 
-        if delet in args:
+        if 'delet' in args:
             emoji = discord.utils.get(self.bot.get_all_emojis(), name='nukeplz')
             await self.bot.add_reaction(message, emoji)
 
