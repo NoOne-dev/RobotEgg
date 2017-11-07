@@ -18,6 +18,9 @@ class React:
             emoji = discord.utils.get(self.bot.get_all_emojis(), name=getrole[args[1]])
             await self.bot.add_reaction(message, emoji)
 
+        if delet in args:
+            emoji = discord.utils.get(self.bot.get_all_emojis(), name='nukeplz')
+            await self.bot.add_reaction(message, emoji)
 
         if '<@&346251636517109770>' in args or '<@&346251636517109770>s' in args:
             emoji = discord.utils.get(self.bot.get_all_emojis(), name='BeAdvised')
