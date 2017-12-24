@@ -53,10 +53,7 @@ class Warning:
         await self.bot.add_reaction(msg, '🛑')
         react = await self.bot.wait_for('reaction_add', check=check)
 
-        if react:
-            await self.bot.say(f"gucci")
-        else:
-            await self.bot.say(f"gang")
+        return react
 
 
     async def _await_reason(self, user, mod):
@@ -77,7 +74,7 @@ class Warning:
         try:
             user = ctx.message.mentions
             if len(user) != 1:
-                await self.bot.say(content=None, embed=create_error("Invalid user specified."))
+                await self.bot.say(content=None, embed=create_error("Invalid user specified"))
                 return False
 
             user = user[0].id
@@ -89,6 +86,7 @@ class Warning:
             return False
 
         if self._check_user(user, mod):
+            await self.bot.say("Gucci")
             reason = await self._get_reason(user, mod)
             note = await self._get_notes(mod)
 
