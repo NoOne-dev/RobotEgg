@@ -46,22 +46,23 @@ class Warning:
 
     async def _check_user(self, user, mod):
         def check(react, user):
-            return react.message.author == mod and ctx.message.channel == react.message.channel 
+            return react.message.author == mod and ctx.message.channel == react.message.channel and str(reaction.emoji) == '✅'
 
         msg = await self.bot.say(f"Warning: <@!{user}>. Is this correct?")
+        print(msg.id)
         await self.bot.add_reaction(msg, '✅')
         await self.bot.add_reaction(msg, '🛑')
-        react = await self.bot.wait_for('reaction_add', check=check)
+        react = await self.bot.wait_for('reaction_add', timeout=60.0, check=check)
 
         return react
 
 
-    async def _await_reason(self, user, mod):
+    async def _get_reason(self, user, mod):
         msg = await self.bot.say(f"Warning: <@!{user}>.")
         await client.wait_for_message(timeout=120.0, author=mod)
 
 
-    async def _await_reason(self, user, mod):
+    async def _get_notes(self, user, mod):
         msg = await self.bot.say(f"Warning: <@!{user}>.")
         await client.wait_for_message(timeout=120.0, author=mod)
 
