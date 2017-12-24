@@ -52,9 +52,9 @@ class Warning:
         print(msg.id)
         await self.bot.add_reaction(msg, '✅')
         await self.bot.add_reaction(msg, '🛑')
-
+        await self.bot.say('finna wait')
         react = await self.bot.wait_for_reaction(timeout=60.0, message=msg, check=check)
-
+        await self.bot.say('done waiting tbh')
         if react:
             return True
         return False
