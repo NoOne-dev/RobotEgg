@@ -191,7 +191,7 @@ class Warning:
             count = 1
             for warning in warnings:
                 message += f"**Warning {count}:** \n"
-                message += f"    Date: _{warning.created_at}_\n"
+                message += f"    Date: _{warning.created_on}_\n"
                 message += f"    By: <@!{warning.created_by}>\n"
                 message += f"    Reason: _{warning.reason}_\n"
                 message += f"    Notes: _{warning.notes}_\n\n"
