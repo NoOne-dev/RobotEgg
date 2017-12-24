@@ -153,10 +153,10 @@ class Warning:
             await self.bot.say(content=None, embed=create_error("entering warning into database: {e}"))
 
         count = session.query(Warning_Table).filter_by(user_id=user.id).count()
-        await self.bot.say(f"<@!{mod.id}>, you have warned user <@!{user.id}> with reason: '{reason}'. User has {count} warnings. Any notes have been attached.")
+        await self.bot.say(f"<@!{mod.id}>, you have warned user <@!{user.id}>.\n\n**Reason:** {reason}\n**Notes:** {notes}\n\nUser has **{count} {'warnings' if count > 1 else 'warning'}**.")
 
         try:
-            await self.bot.send_message(user, content=f"Hi {user.name},\n\nYou have received a warning in Eggserver Alpha with reason: '{reason}'. You have {count} warnings. If you have any questions or concerns, please ask the mods.")
+            await self.bot.send_message(user, content=f"Hi {user.name},\n\nYou have received a warning in Eggserver Alpha with reason: _{reason}_. You have _{count}_ {'warnings' if count > 1 else 'warning'}.\n\nIf you have any further questions or concerns, please ask the mods.")
         except:
             await self.bot.say(f"Error DMing <@!{user.id}>. Please follow up.")
 
