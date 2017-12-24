@@ -66,6 +66,10 @@ class Warning:
         msg = await self.bot.say(f"Please provide a reason for the warning.")
 
         def check(message):
+            if len(message.content) < 5:
+                self.bot.say('Provide a valid reason.')
+            if len(message.content) > 500:
+                self.bot.say('Given reason is too long.')
             return len(message.content) > 5 and len(message.content) < 500
 
         msg = await self.bot.wait_for_message(timeout=120.0, author=mod, check=check)
@@ -73,9 +77,29 @@ class Warning:
 
 
     async def _get_notes(self, mod):
-        msg = await self.bot.say(f"Optional: provide any notes or attachments such as screenshots.")
+        msg = await self.bot.say(f"Optional: provide any notes or attachments (such as screenshots) or reply with 'done' to skip the wait.")
+
+        def check(message):
+            if message.content.lower() == 'done':
+                return True
+            if len(message.content) < 5:
+                self.bot.say('Provide a valid reason.')
+            if len(message.content) > 500:
+                self.bot.say('Given reason is too long.')
+            return len(message.content) > 5 and len(message.content) < 500
+
         msg = await self.bot.wait_for_message(timeout=120.0, author=mod)
-        await self.bot.say(msg.attachments)
+
+        reason = msg.clean_content if msg else False
+
+        if reason == 'done':
+            return False
+
+        if msg.attachments:
+            for attachment in msg.attachments:
+                reason += f' <Attachment: {attachment["url"]}>'
+
+        return reason
 
 
     @commands.command(pass_context=True)
@@ -106,6 +130,8 @@ class Warning:
         else:
             await self.bot.say("Cancelled.")
             return False
+            
+        await self.bot.say(f"{user} is being warned for {reason} by {mod.id}. Notes: {note}.")
 
 
     @commands.command()
