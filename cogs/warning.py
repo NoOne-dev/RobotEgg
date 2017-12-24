@@ -52,9 +52,13 @@ class Warning:
         print(msg.id)
         await self.bot.add_reaction(msg, '✅')
         await self.bot.add_reaction(msg, '🛑')
-        react = await self.bot.wait_for('reaction_add', timeout=60.0, check=check)
-
-        return react
+        
+        try:
+            react = await self.bot.wait_for('reaction_add', timeout=60.0, check=check)
+        except asyncio.TimeoutError:
+            return False
+        else:
+            return True
 
 
     async def _get_reason(self, user, mod):
@@ -86,7 +90,7 @@ class Warning:
             await self.bot.say(content=None, embed=create_error(f"Error creating warning: {e}"))
             return False
 
-        if self._check_user(user, mod):
+        if await self._check_user(user, mod):
             await self.bot.say("Gucci")
             reason = await self._get_reason(user, mod)
             note = await self._get_notes(mod)
