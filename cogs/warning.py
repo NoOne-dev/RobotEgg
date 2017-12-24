@@ -137,6 +137,8 @@ class Warning:
             await self.bot.say("Cancelled.")
             return False
 
+        notes = '' if not notes else notes
+
         warning = Warning_Table(
             user_id=user.id,
             created_by=mod.id,
@@ -190,11 +192,11 @@ class Warning:
         else:
             count = 1
             for warning in warnings:
-                message += f"**Warning {count}:** \n"
-                message += f"    Date: _{warning.created_on}_\n"
-                message += f"    By: <@!{warning.created_by}>\n"
-                message += f"    Reason: _{warning.reason}_\n"
-                message += f"    Notes: _{warning.notes}_\n\n"
+                message += f"\n**Warning {count}:** \n"
+                message += f"    **Date:** {warning.created_on.year}-{warning.created_on.month}-{warning.created_on.day}-\n"
+                message += f"    **By:** <@!{warning.created_by}>\n"
+                message += f"    **Reason:** {warning.reason}\n"
+                message += f"    **Notes:** {warning.notes}\n\n" if notes else pass
                 count += 1
 
         if ctx.message.author.id == user.id:
