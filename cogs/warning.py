@@ -47,7 +47,7 @@ class Warning:
     async def _check_user(self, user, mod):
         def check(reaction, user):
             valid = reaction.message.author.id == mod.id and str(reaction.emoji) == '✅'
-            await self.bot.say(f'{reaction.message.author.id}, {mod.id}: {str(reaction.emoji)}: {valid}')
+            self.bot.say(f'{reaction.message.author.id}, {mod.id}: {str(reaction.emoji)}: {valid}')
 
         msg = await self.bot.say(f"Warning: <@!{user}>. Is this correct?")
 
