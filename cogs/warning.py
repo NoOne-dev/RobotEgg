@@ -44,20 +44,53 @@ class Warning:
         self.bot = bot
 
 
+    async def _check_user(user, mod):
+        def check(react, user):
+            return react.message.author == mod and ctx.message.channel == react.message.channel 
+
+        msg = await self.bot.say(f"Warning: <@!{user}>. Is this correct?")
+        await self.bot.add_reaction(msg, '✅')
+        await self.bot.add_reaction(msg, '🛑')
+        react = await self.bot.wait_for('reaction_add', check=check)
+
+        if react:
+            await self.bot.say(f"gucci")
+        else:
+            await self.bot.say(f"gang")
+
+
+    async def _await_reason(user, mod):
+        msg = await self.bot.say(f"Warning: <@!{user}>.")
+        await client.wait_for_message(timeout=120.0, author=mod)
+
+
+    async def _await_reason(user, mod):
+        msg = await self.bot.say(f"Warning: <@!{user}>.")
+        await client.wait_for_message(timeout=120.0, author=mod)
+
+
     @commands.command(pass_context=True)
     @channels_allowed(["mod-commands"])
     @is_mod()
     async def warn(self, ctx):
         """Add a warning to the database"""
-        user = ctx.message.mentions
-        if len(user) != 1:
+        try:
+            user = ctx.message.mentions
+            if len(user) != 1:
+                await self.bot.say(content=None, embed=create_error("Invalid user specified."))
+                return False
+
+            user = user[0].id
+            mod = ctx.message.author
+            date = datetime.datetime.now()
+        
+        except Exception as e:
+            await self.bot.say(content=None, embed=create_error(f"Error creating warning: {e}"))
             return False
 
-        user = user[0].id
-        mod = ctx.message.author.id
-        date = datetime.datetime.now()
-
-        print(f'warning {user} by {mod} on {date}')
+        if _check_user(user, mod):
+            reason = await _get_reason(user, mod)
+            note = await _get_notes(mod)
 
 
     @commands.command()
