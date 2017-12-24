@@ -203,9 +203,8 @@ class Warning:
         if ctx.message.author.id == user.id:
             await self.bot.send_message(user, content=message)
         else:
-            mod_role = discord.utils.get(ctx.message.author.server.roles, name=config["roles"]["mod"])
-            if mod_role in ctx.message.author.roles:
-                await self.bot.send_message(author, content=message)
+            if ctx.message.channel.id == config["channels"]["mod-commands"]:
+                await self.bot.say(message)
             else:
                 await self.bot.say(content=None, embed=create_error("You can only view your own warnings."))
         
