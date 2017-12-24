@@ -68,14 +68,14 @@ class Warning:
         def check(message):
             return len(message.content) > 5 and len(message.content) < 500
 
-        msg = await client.wait_for_message(timeout=120.0, author=mod, check=check)
+        msg = await self.bot.wait_for_message(timeout=120.0, author=mod, check=check)
         await self.bot.say(msg.content)
         return msg.clean_content
 
 
     async def _get_notes(self, user, mod):
         msg = await self.bot.say(f"Optional: provide any notes or attachments such as screenshots.")
-        await client.wait_for_message(timeout=120.0, author=mod)
+        await self.bot.wait_for_message(timeout=120.0, author=mod)
 
 
     @commands.command(pass_context=True)
