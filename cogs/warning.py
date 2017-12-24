@@ -54,7 +54,7 @@ class Warning:
         await self.bot.add_reaction(msg, '✅')
         await self.bot.add_reaction(msg, '🛑')
 
-        react = await self.bot.wait_for_reaction(timeout=60.0, message=msg check=check)
+        react = await self.bot.wait_for_reaction(timeout=60.0, message=msg, check=check)
 
         if react:
             return True
