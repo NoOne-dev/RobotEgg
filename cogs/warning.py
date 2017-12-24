@@ -45,7 +45,7 @@ class Warning:
 
 
     async def _check_user(self, user, mod):
-        msg = await self.bot.say(f"Warning: <@!{user}>. Is this correct?")
+        msg = await self.bot.say(f"Warning: <@!{user.id}>. Is this correct?")
 
         await self.bot.add_reaction(msg, '✅')
         await self.bot.add_reaction(msg, '🛑')
@@ -62,7 +62,7 @@ class Warning:
         return False
 
 
-    async def _get_reason(self, user, mod):
+    async def _get_reason(self, mod):
         msg = await self.bot.say(f"Please provide a reason for the warning. Type 'stop' to cancel.")
 
         def check(message):
@@ -119,7 +119,7 @@ class Warning:
                 await self.bot.say(content=None, embed=create_error("Invalid user specified"))
                 return False
 
-            user = user[0].id
+            user = user[0]
             mod = ctx.message.author
             date = datetime.datetime.now()
         
@@ -128,7 +128,7 @@ class Warning:
             return False
 
         if await self._check_user(user, mod):
-            reason = await self._get_reason(user, mod)
+            reason = await self._get_reason(mod)
             if not reason:
                 await self.bot.say("Cancelled.")
                 return False
@@ -137,20 +137,62 @@ class Warning:
             await self.bot.say("Cancelled.")
             return False
 
-        await self.bot.say(f"<@!{mod.id}>, you have warned user <@!{user}> for {reason}. Any notes have been attached.")
+        warning = Warning_Table(
+            user_id=user.id,
+            created_by=mod.id,
+            created_on=date,
+            reason=reason,
+            notes=notes
+        )
+        session.add(warning)
+
+        try:
+            session.commit()
+        except Exception as e:
+            print(e)
+            await self.bot.say(content=None, embed=create_error("entering warning into database: {e}"))
+
+        count = session.query(Warning_Table).filter_by(user_id=user.id).count()
+        await self.bot.say(f"<@!{mod.id}>, you have warned user <@!{user.id}> with reason: '{reason}'. User has {count} warnings. Any notes have been attached.")
+        
+        try:
+            await self.bot.send_message(user, content="Hello,\n You have received a warning in Eggserver Alpha with reason: '{reason}'. You have {count} warnings.")
+        except:
+            await self.bot.say(f"Error DMing <@!{user.id}>. Please follow up.")
 
 
     @commands.command()
     @is_mod()
-    async def removewarning(self, uid):
+    async def removewarning(self, ctx):
         """Remove warning from user"""
-        pass
+
 
 
     @commands.command(invoke_without_command=True)
     async def warnings(self, ctx):
         """Check warnings of user or self"""
-        pass
+        user = ctx.message.mentions
+        if len(user) > 1:
+            await self.bot.say(content=None, embed=create_error("Too many users specified"))
+            return False
+
+        if len(user) == 1:
+            user = user[0]
+
+        else:
+            user = ctx.message.author
+
+        warnings = session.query(Warning_Table).filter_by(user_id=user.id).all()
+
+        if ctx.message.author.id == user.id:
+            await self.bot.send_message(user, content=warnings)
+        else:
+            mod_role = discord.utils.get(ctx.message.author.server.roles, name=config["roles"]["mod"])
+            if mod_role in ctx.message.author.roles:
+                await self.bot.send_message(author, content=warnings)
+            else:
+                await self.bot.say(content=None, embed=create_error("You can only view your own warnings."))
+        
 
 def setup(bot):
     bot.add_cog(Warning(bot))
