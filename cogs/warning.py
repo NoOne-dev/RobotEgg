@@ -74,7 +74,7 @@ class Warning:
 
     async def _get_notes(self, mod):
         msg = await self.bot.say(f"Optional: provide any notes or attachments such as screenshots.")
-        await self.bot.wait_for_message(timeout=120.0, author=mod)
+        msg = await self.bot.wait_for_message(timeout=120.0, author=mod)
         await self.bot.say(msg.attachments)
 
 
