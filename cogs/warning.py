@@ -63,9 +63,11 @@ class Warning:
 
 
     async def _get_reason(self, user, mod):
-        msg = await self.bot.say(f"Please provide a reason for the warning.")
+        msg = await self.bot.say(f"Please provide a reason for the warning. Type 'stop' to cancel.")
 
         def check(message):
+            if message.content == 'stop':
+                return True
             if len(message.content) < 5:
                 self.bot.say('Provide a valid reason.')
             if len(message.content) > 500:
@@ -73,7 +75,13 @@ class Warning:
             return len(message.content) > 5 and len(message.content) < 500
 
         msg = await self.bot.wait_for_message(timeout=120.0, author=mod, check=check)
-        return msg.clean_content
+        
+        resp = msg.clean_content if msg else False
+
+        if resp == 'stop':
+            return False
+
+        return resp
 
 
     async def _get_notes(self, mod):
@@ -82,24 +90,22 @@ class Warning:
         def check(message):
             if message.content.lower() == 'done':
                 return True
-            if len(message.content) < 5:
-                self.bot.say('Provide a valid reason.')
             if len(message.content) > 500:
-                self.bot.say('Given reason is too long.')
-            return len(message.content) > 5 and len(message.content) < 500
+                self.bot.say('Note is too long.')
+            return len(message.content) < 500
 
         msg = await self.bot.wait_for_message(timeout=120.0, author=mod)
 
-        reason = msg.clean_content if msg else False
+        resp = msg.clean_content if msg else False
 
-        if reason == 'done':
+        if resp == 'done':
             return False
 
         if msg.attachments:
             for attachment in msg.attachments:
-                reason += f' <Attachment: {attachment["url"]}>'
+                resp += f' << attachment: {attachment["url"]} >>'
 
-        return reason
+        return resp
 
 
     @commands.command(pass_context=True)
@@ -130,8 +136,8 @@ class Warning:
         else:
             await self.bot.say("Cancelled.")
             return False
-            
-        await self.bot.say(f"{user} is being warned for {reason} by {mod.id}. Notes: {note}.")
+
+        await self.bot.say(f"<@!{mod.id}>, you have warned user <@!{user}> for {reason}. Any notes have been attached.")
 
 
     @commands.command()
