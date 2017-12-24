@@ -45,20 +45,20 @@ class Warning:
 
 
     async def _check_user(self, user, mod):
-        def check(react, user):
-            return react.message.author == mod and ctx.message.channel == react.message.channel and str(reaction.emoji) == '✅'
+        def check(reaction, user):
+            return reaction.message.author == mod and str(reaction.emoji) == '✅'
 
         msg = await self.bot.say(f"Warning: <@!{user}>. Is this correct?")
         print(msg.id)
         await self.bot.add_reaction(msg, '✅')
         await self.bot.add_reaction(msg, '🛑')
-        
-        try:
-            react = await self.bot.wait_for('reaction_add', timeout=60.0, check=check)
-        except asyncio.TimeoutError:
-            return False
-        else:
+
+        react = await self.bot.wait_for_reaction(timeout=60.0, message=msg, check=check)
+
+        if react:
             return True
+        return False
+
 
 
     async def _get_reason(self, user, mod):
@@ -94,6 +94,8 @@ class Warning:
             await self.bot.say("Gucci")
             reason = await self._get_reason(user, mod)
             note = await self._get_notes(mod)
+        else:
+            await self.bot.say("Cancelled.")
 
 
     @commands.command()
