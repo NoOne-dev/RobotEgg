@@ -51,7 +51,7 @@ class Warning:
         await self.bot.add_reaction(msg, '🛑')
 
         def check(reaction, user):
-            if user.id = msg.author.id:
+            if user.id == msg.author.id:
                 pass
             else:
                 return user.id == mod.id and str(reaction.emoji) == '✅' or str(reaction.emoji) == '🛑'
