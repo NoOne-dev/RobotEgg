@@ -14,8 +14,14 @@ def channels_allowed(channels):
     return commands.check(predicate)
 
 
-
 def is_owner():
     def predicate(ctx):
         return ctx.message.author.id == config["owner_ids"]
+    return commands.check(predicate)
+
+
+def is_mod():
+    def predicate(ctx):
+        mod_role = discord.utils.get(after.server.roles, name=config["roles"]["mod"])
+        return mod_role in ctx.message.author.roles
     return commands.check(predicate)
