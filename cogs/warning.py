@@ -44,7 +44,7 @@ class Warning:
         self.bot = bot
 
 
-    async def _check_user(user, mod):
+    async def _check_user(self, user, mod):
         def check(react, user):
             return react.message.author == mod and ctx.message.channel == react.message.channel 
 
@@ -59,12 +59,12 @@ class Warning:
             await self.bot.say(f"gang")
 
 
-    async def _await_reason(user, mod):
+    async def _await_reason(self, user, mod):
         msg = await self.bot.say(f"Warning: <@!{user}>.")
         await client.wait_for_message(timeout=120.0, author=mod)
 
 
-    async def _await_reason(user, mod):
+    async def _await_reason(self, user, mod):
         msg = await self.bot.say(f"Warning: <@!{user}>.")
         await client.wait_for_message(timeout=120.0, author=mod)
 
@@ -88,9 +88,9 @@ class Warning:
             await self.bot.say(content=None, embed=create_error(f"Error creating warning: {e}"))
             return False
 
-        if _check_user(user, mod):
-            reason = await _get_reason(user, mod)
-            note = await _get_notes(mod)
+        if self._check_user(user, mod):
+            reason = await self._get_reason(user, mod)
+            note = await self._get_notes(mod)
 
 
     @commands.command()
