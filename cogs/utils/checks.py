@@ -1,3 +1,4 @@
+import discord
 from config import config
 from discord.ext import commands
 
@@ -22,6 +23,6 @@ def is_owner():
 
 def is_mod():
     def predicate(ctx):
-        mod_role = discord.utils.get(after.server.roles, name=config["roles"]["mod"])
+        mod_role = discord.utils.get(ctx.message.author.server.roles, name=config["roles"]["mod"])
         return mod_role in ctx.message.author.roles
     return commands.check(predicate)
