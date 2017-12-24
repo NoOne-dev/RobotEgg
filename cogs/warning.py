@@ -156,7 +156,7 @@ class Warning:
         await self.bot.say(f"<@!{mod.id}>, you have warned user <@!{user.id}>.\n\n**Reason:** {reason}\n**Notes:** {notes}\n\nUser has **{count} {'warnings' if count > 1 else 'warning'}**.")
 
         try:
-            await self.bot.send_message(user, content=f"Hi {user.name},\n\nYou have received a warning in Eggserver Alpha with reason: _{reason}_. You have _{count}_ {'warnings' if count > 1 else 'warning'}.\n\nIf you have any further questions or concerns, please ask the mods.")
+            await self.bot.send_message(user, content=f"Hi {user.name},\n\nYou have received a warning in Eggserver Alpha.\n\n**Reason:** {reason}.\nYou have **{count} {'warnings' if count > 1 else 'warning'}**.\n\nIf you have any further questions or concerns, please ask the mods.")
         except:
             await self.bot.say(f"Error DMing <@!{user.id}>. Please follow up.")
 
@@ -165,10 +165,10 @@ class Warning:
     @is_mod()
     async def removewarning(self, ctx):
         """Remove warning from user"""
+        pass
 
 
-
-    @commands.command(invoke_without_command=True)
+    @commands.command(pass_context=True, invoke_without_command=True)
     async def warnings(self, ctx):
         """Check warnings of user or self"""
         user = ctx.message.mentions
