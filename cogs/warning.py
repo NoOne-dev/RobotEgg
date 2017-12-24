@@ -132,7 +132,7 @@ class Warning:
             if not reason:
                 await self.bot.say("Cancelled.")
                 return False
-            note = await self._get_notes(mod)
+            notes = await self._get_notes(mod)
         else:
             await self.bot.say("Cancelled.")
             return False
