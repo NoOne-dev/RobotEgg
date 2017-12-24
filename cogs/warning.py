@@ -51,7 +51,10 @@ class Warning:
         await self.bot.add_reaction(msg, '🛑')
 
         def check(reaction, user):
-            return user.id == mod.id and str(reaction.emoji) == '✅' or str(reaction.emoji) == '🛑'
+            if user.id = msg.author.id:
+                pass
+            else:
+                return user.id == mod.id and str(reaction.emoji) == '✅' or str(reaction.emoji) == '🛑'
 
         react = await self.bot.wait_for_reaction(timeout=60.0, message=msg, check=check)
 
