@@ -154,9 +154,9 @@ class Warning:
 
         count = session.query(Warning_Table).filter_by(user_id=user.id).count()
         await self.bot.say(f"<@!{mod.id}>, you have warned user <@!{user.id}> with reason: '{reason}'. User has {count} warnings. Any notes have been attached.")
-        
+
         try:
-            await self.bot.send_message(user, content="Hello,\n You have received a warning in Eggserver Alpha with reason: '{reason}'. You have {count} warnings.")
+            await self.bot.send_message(user, content=f"Hi {user.name},\n\nYou have received a warning in Eggserver Alpha with reason: '{reason}'. You have {count} warnings. If you have any questions or concerns, please ask the mods.")
         except:
             await self.bot.say(f"Error DMing <@!{user.id}>. Please follow up.")
 
