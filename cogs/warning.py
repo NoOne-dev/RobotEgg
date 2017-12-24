@@ -184,6 +184,19 @@ class Warning:
 
         warnings = session.query(Warning_Table).filter_by(user_id=user.id).all()
 
+        if len(warnings) == 0:
+            await self.bot.send_message(user, content="You have no warnings yet!")
+        else:
+            message = ''
+            count = 1
+            for warning in warnings:
+                message += f"**Warning {count}:** \n"
+                message += f"    Date: _{warning.date}_\n"
+                message += f"    Reason: _{warning.reason}_\n"
+                message += f"    Notes: _{warning.notes}_\n\n"
+                count += 1
+
+
         if ctx.message.author.id == user.id:
             await self.bot.send_message(user, content=warnings)
         else:
