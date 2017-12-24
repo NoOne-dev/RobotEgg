@@ -81,8 +81,6 @@ class Birthday:
             date = datetime.datetime.now().date()
             users = self._check_today()
 
-            print("Running notifier task")
-
             try:
                 notified = session.query(Notified.uid).scalar()
             except Exception as e:
