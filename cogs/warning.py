@@ -196,7 +196,8 @@ class Warning:
                 message += f"    **Date:** {warning.created_on.year}-{warning.created_on.month}-{warning.created_on.day}-\n"
                 message += f"    **By:** <@!{warning.created_by}>\n"
                 message += f"    **Reason:** {warning.reason}\n"
-                message += f"    **Notes:** {warning.notes}\n\n" if notes else pass
+                if warning.notes:
+                    message += f"    **Notes:** {warning.notes}\n\n"
                 count += 1
 
         if ctx.message.author.id == user.id:
