@@ -57,20 +57,24 @@ class Warning:
                 return user.id == mod.id and str(reaction.emoji) == '✅' or str(reaction.emoji) == '🛑'
 
         react = await self.bot.wait_for_reaction(timeout=60.0, message=msg, check=check)
-
         if react:
             return str(react.reaction.emoji) == '✅'
         return False
 
 
-
     async def _get_reason(self, user, mod):
-        msg = await self.bot.say(f"Warning: <@!{user}>.")
-        await client.wait_for_message(timeout=120.0, author=mod)
+        msg = await self.bot.say(f"Please provide a reason for the warning.")
+
+        def check(message):
+            return len(message.content) > 5 and len(message.content) < 500
+
+        msg = await client.wait_for_message(timeout=120.0, author=mod, check=check)
+        await self.bot.say(msg.content)
+        return msg.clean_content
 
 
     async def _get_notes(self, user, mod):
-        msg = await self.bot.say(f"Warning: <@!{user}>.")
+        msg = await self.bot.say(f"Optional: provide any notes or attachments such as screenshots.")
         await client.wait_for_message(timeout=120.0, author=mod)
 
 
@@ -94,11 +98,14 @@ class Warning:
             return False
 
         if await self._check_user(user, mod):
-            await self.bot.say("Gucci")
             reason = await self._get_reason(user, mod)
+            if not reason:
+                await self.bot.say("Cancelled.")
+                return False
             note = await self._get_notes(mod)
         else:
             await self.bot.say("Cancelled.")
+            return False
 
 
     @commands.command()
