@@ -226,7 +226,7 @@ class Warning:
             try:
                 return int(message.content) in ids
             except:
-                await self.bot.say(content=None, embed=create_error("Enter a valid warning ID"))
+                self.bot.say(content=None, embed=create_error("Enter a valid warning ID"))
                 return False
 
         await self.bot.say(content="Enter the ID of the warning to remove.")
