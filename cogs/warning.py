@@ -261,6 +261,7 @@ class Warning:
 
 
     async def _get_more_info(self, id_dict):
+        print(id_dict)
         def check(message):
             if message.content in id_dict:
                 return True
