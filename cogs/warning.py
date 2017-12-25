@@ -48,7 +48,7 @@ class Warning:
         """Generate message showing warnings"""
         warnings = session.query(Warning_Table).filter_by(user_id=user_id).all()
 
-        ids = []
+        id_list = []
         message = f"**Warnings for <@!{user_id}>**\n"
         if len(warnings) == 0:
             message = "There are no warnings for this user."
@@ -68,9 +68,7 @@ class Warning:
                 count += 1
 
         if ids:
-            msg_plus_ids = {"message": message, "ids": ids}
-            print(msg_plus_ids)
-            return msg_plus_ids
+            return = {"message": message, "ids": id_list}
         return message
 
 
@@ -253,7 +251,7 @@ class Warning:
 
         user = user[0]
 
-        msg_plus_ids = self._get_warning_message(user.id, ids=True)
+        msg_plus_ids = self._get_warning_message(user.id, True)
         message = msg_plus_ids["message"]
         ids = msg_plus_ids["ids"]
         await self.bot.say(message)
