@@ -43,7 +43,7 @@ class Warning:
     def __init__(self, bot):
         self.bot = bot
 
-    
+
     def _get_warning_message(self, user_id, ids=False):
         """Generate message showing warnings"""
         warnings = session.query(Warning_Table).filter_by(user_id=user_id).all()
@@ -64,7 +64,7 @@ class Warning:
                 message += f"    _By:_ <@!{warning.created_by}>\n"
                 message += f"    _Reason:_ {warning.reason}\n"
                 if warning.notes:
-                    message += f"    _Notes:_ {warning.notes}\n\n"
+                    message += f"    _Notes:_ {warning.notes}\n\n"       
                 count += 1
 
         if ids:
@@ -75,6 +75,7 @@ class Warning:
     async def _get_more_info(self, id_dict):
         """Waits for user to provide a number to generate a warning list for"""
         def check(message):
+            """Checks if the given user was present in the list"""
             if message.content in id_dict:
                 return True
             return False
@@ -95,6 +96,7 @@ class Warning:
         await self.bot.add_reaction(msg, '🛑')
 
         def check(reaction, user):
+            """Check if the reaction is by the bot and then if it's an OK or a not OK"""
             if user.id == msg.author.id:
                 pass
             else:
@@ -108,6 +110,8 @@ class Warning:
 
     async def _get_reason(self, mod):
         """Gets a reason from the reporting party"""
+
+        reason_msg = "Please provide a reason. Enter a message or choose a premade warning. Type 'stop' to cancel.\n"
         premade = {"1": "NSFW content",
                    "2": "Very disturbing content",
                    "3": "Use of slurs",
@@ -115,14 +119,13 @@ class Warning:
                    "5": "Spam",
                    "6": "Posting links to other Discord servers",
                    "7": "Breaking Discord ToS"}
-
-        reason_msg = "Please provide a reason. Enter a message or choose a premade warning. Type 'stop' to cancel.\n"
         for key in premade:
             reason_msg += f"\n{key}: {premade[key]}"
 
-        msg = await self.bot.say(reason_msg)
+        msg = await self.bot.say(reason_msg) #Ask user to enter a reason
 
         def check(message):
+            """Check if the reason is valid: either stop, premade or with a given length."""
             if message.content == 'stop' or message.content in premade:
                 return True
             if len(message.content) < 5:
@@ -131,8 +134,10 @@ class Warning:
                 self.bot.say('Given reason is too long.')
             return len(message.content) > 5 and len(message.content) < 500
 
+        #Wait for the user to enter a reason
         msg = await self.bot.wait_for_message(timeout=120.0, author=mod, check=check)
 
+        #If no reason was given then return false
         resp = msg.clean_content if msg else False
 
         if msg.content in premade:
@@ -149,6 +154,7 @@ class Warning:
         msg = await self.bot.say(f"Optional: provide any notes or attachments (such as screenshots) or reply with 'done' to skip the wait.")
 
         def check(message):
+            """Check if a note should be entered and if the length is valid"""
             if message.content.lower() == 'done':
                 return True
             if len(message.content) > 500:
@@ -162,6 +168,7 @@ class Warning:
         if resp == 'done':
             return False
 
+        # Attach the link of any attachment to the note
         if msg.attachments:
             for attachment in msg.attachments:
                 resp += f' << attachment: {attachment["url"]} >>'
@@ -175,6 +182,7 @@ class Warning:
     async def warn(self, ctx):
         """Add a warning to the database"""
         try:
+            # Find the user to warn in message mentions
             user = ctx.message.mentions
             if len(user) != 1:
                 await self.bot.say(content=None, embed=create_error("Invalid user specified"))
@@ -188,12 +196,12 @@ class Warning:
             await self.bot.say(content=None, embed=create_error(f"Error creating warning: {e}"))
             return False
 
-        if await self._check_user(user, mod):
-            reason = await self._get_reason(mod)
+        if await self._check_user(user, mod): #Correct user confirmation
+            reason = await self._get_reason(mod) #Get a reason
             if not reason:
                 await self.bot.say("Cancelled.")
                 return False
-            notes = await self._get_notes(mod)
+            notes = await self._get_notes(mod) #Get any further notes
         else:
             await self.bot.say("Cancelled.")
             return False
@@ -207,14 +215,15 @@ class Warning:
             reason=reason,
             notes=notes
         )
-        session.add(warning)
+        session.add(warning) 
 
         try:
-            session.commit()
+            session.commit() # Add it to the DB
         except Exception as e:
             print(e)
             await self.bot.say(content=None, embed=create_error("entering warning into database: {e}"))
 
+        # Tell the mod and the user about the warning
         count = session.query(Warning_Table).filter_by(user_id=user.id).count()
 
         mod_message = f"<@!{mod.id}>, you have warned user <@!{user.id}>.\n\n"
@@ -231,8 +240,8 @@ class Warning:
         user_message += f"If you have any further questions or concerns, please ask the mods."
         try:
             await self.bot.send_message(user, content=user_message)
-        except:
-            await self.bot.say(f"<@!{mod.id}>: error DMing <@!{user.id}>. Please follow up.")
+        except Exception as e:
+            await self.bot.say(f"<@!{mod.id}>: error DMing <@!{user.id}>. Please follow up. ({e})")
 
 
     @commands.command(pass_context=True)
@@ -242,26 +251,25 @@ class Warning:
         """Remove warning from user"""
         user = ctx.message.mentions
         mod = ctx.message.author
-        if len(user) > 1:
-            await self.bot.say(content=None, embed=create_error("Too many users specified"))
-            return False
-        if len(user) < 1:
-            await self.bot.say(content=None, embed=create_error("Please specify a user"))
+        if len(user) != 1:
+            await self.bot.say(content=None, embed=create_error("Please specify exactly one user."))
             return False
 
         user = user[0]
 
+        # Get the warnings and the warning IDs for the specified user
         message, ids = self._get_warning_message(user.id, ids=True)
         await self.bot.say(message)
+        await self.bot.say(content="Enter the ID of the warning to remove.")
 
         def check(message):
+            """Check if the warning to remove is indeed valid"""
             try:
                 return int(message.content) in ids
             except:
                 self.bot.say(content=None, embed=create_error("Enter a valid warning ID"))
                 return False
 
-        await self.bot.say(content="Enter the ID of the warning to remove.")
         msg = await self.bot.wait_for_message(timeout=120.0, author=mod, check=check)
 
         if not msg.content:
@@ -303,6 +311,7 @@ class Warning:
         message += "`'-------------------------------------------------------------'`"
         await self.bot.say(message)
 
+        # If a mod enters a number give more info about the warnings of that user
         await self._get_more_info(id_dict)
 
 
