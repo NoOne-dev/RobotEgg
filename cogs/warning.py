@@ -68,7 +68,7 @@ class Warning:
                    "3": "Use of slurs",
                    "4": "Harassment / personal attacks",
                    "5": "Spam",
-                   "6": "Posting links to other Discord servers"
+                   "6": "Posting links to other Discord servers",
                    "7": "Breaking Discord ToS"}
 
         reason_msg = "Please provide a reason. Enter a message or choose a premade warning. Type 'stop' to cancel.\n"
