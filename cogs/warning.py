@@ -53,6 +53,7 @@ class Warning:
         if delete:
             try:
                 await self.bot.delete_messages(self.queue)
+                self.queue = []
             except ClientException:
                 while self.queue:
                     await self.bot.delete_message(self.queue.pop())
