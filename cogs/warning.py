@@ -140,7 +140,7 @@ class Warning:
             reason_msg += f"\n{key}: {premade[key]}"
 
         msg = await self.bot.say(reason_msg) #Ask user to enter a reason
-        await self._deletion_queue(msg, delete=False)
+        await self._deletion_queue(msg)
 
         def check(message):
             """Check if the reason is valid: either stop, premade or with a given length."""
@@ -161,7 +161,7 @@ class Warning:
         if user_msg.content in premade:
             resp = premade[user_msg.content]
 
-        await self._deletion_queue(user_msg, delete=False)
+        await self._deletion_queue(user_msg)
 
         if resp == 'stop':
             return False
@@ -181,12 +181,12 @@ class Warning:
                 self.bot.say('Note is too long.')
             return len(message.content) < 500
 
-        await self._deletion_queue(msg, delete=False)
+        await self._deletion_queue(msg)
         user_msg = await self.bot.wait_for_message(timeout=120.0, author=mod, check=check)
 
         resp = user_msg.clean_content if user_msg else False
 
-        await self._deletion_queue(user_msg, delete=False)
+        await self._deletion_queue(user_msg)
 
         if resp == 'done':
             return False
@@ -287,8 +287,8 @@ class Warning:
         message, ids = self._get_warning_message(user.id, ids=True)
         await self.bot.say(message)
         prompt_msg = await self.bot.say(content="Enter the ID of the warning to remove.")
-        await self._deletion_queue(message, delete=False)
-        self._deletion_queue(prompt_msg, delete=False)
+        await self._deletion_queue(message)
+        await self._deletion_queue(prompt_msg)
 
         def check(message):
             """Check if the warning to remove is indeed valid"""
@@ -300,7 +300,7 @@ class Warning:
 
         msg = await self.bot.wait_for_message(timeout=120.0, author=mod, check=check)
         if msg:
-            await self._deletion_queue(msg, delete=False)
+            await self._deletion_queue(msg)
 
         if not msg.content:
             return False
