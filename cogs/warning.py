@@ -8,10 +8,10 @@ from cogs.utils.create_error import create_error
 from cogs.utils.checks import channels_allowed
 from cogs.utils.checks import is_owner
 from cogs.utils.checks import is_mod
-from sqlalchemy import create_engine  
-from sqlalchemy import Column, String, Integer, DateTime 
+from sqlalchemy import create_engine
+from sqlalchemy import Column, String, Integer, DateTime
 from sqlalchemy import func
-from sqlalchemy.ext.declarative import declarative_base  
+from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
 
 
@@ -19,11 +19,11 @@ from sqlalchemy.orm import sessionmaker
 Keeps track of warnings
 """
 
-db   = create_engine(os.environ['DATABASE_URL'])
+db = create_engine(os.environ['DATABASE_URL'])
 Base = declarative_base()
 
 
-class Warning_Table(Base):  
+class Warning_Table(Base):
     __tablename__ = "warning_table"
     index = Column(Integer, primary_key=True, autoincrement=True)
     user_id = Column(String)
@@ -33,7 +33,7 @@ class Warning_Table(Base):
     notes = Column(String)
 
 
-Session = sessionmaker(db)  
+Session = sessionmaker(db)
 session = Session()
 Base.metadata.create_all(db)
 
@@ -44,18 +44,18 @@ class Warning:
         self.bot = bot
         self.queue = []
 
-    
+
     async def _deletion_queue(self, message=None, delete=False):
         """Set messages to delete"""
         if message != None:
             self.queue.append(message)
-            print(queue)
+            print(self.queue)
 
         elif delete:
             for item in self.queue:
                 print(item)
                 await self.bot.delete_message(item)
-        
+
         return True
 
 
@@ -79,7 +79,7 @@ class Warning:
                 message += f"    _By:_ <@!{warning.created_by}>\n"
                 message += f"    _Reason:_ {warning.reason}\n"
                 if warning.notes:
-                    message += f"    _Notes:_ {warning.notes}\n\n"       
+                    message += f"    _Notes:_ {warning.notes}\n\n"
                 count += 1
 
         if ids:
@@ -115,7 +115,7 @@ class Warning:
             if user.id == msg.author.id:
                 pass
             else:
-                return user.id == mod.id and str(reaction.emoji) == '✅' or str(reaction.emoji) == '🛑'
+                return user.id == mod.id and (str(reaction.emoji) == '✅' or str(reaction.emoji) == '🛑')
 
         react = await self.bot.wait_for_reaction(timeout=60.0, message=msg, check=check)
         if react:
@@ -220,12 +220,12 @@ class Warning:
         if await self._check_user(user, mod): #Correct user confirmation
             reason = await self._get_reason(mod) #Get a reason
             if not reason:
-                msg = await self.bot.say("Cancelled.")
+                await self.bot.say("Cancelled.")
                 await self._deletion_queue(message=None, delete=True)
                 return False
             notes = await self._get_notes(mod) #Get any further notes
         else:
-            msg = await self.bot.say("Cancelled.")
+            await self.bot.say("Cancelled.")
             await self._deletion_queue(message=None, delete=True)
             return False
 
@@ -238,7 +238,7 @@ class Warning:
             reason=reason,
             notes=notes
         )
-        session.add(warning) 
+        session.add(warning)
 
         try:
             session.commit() # Add it to the DB
