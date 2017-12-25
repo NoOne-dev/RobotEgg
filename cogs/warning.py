@@ -220,7 +220,7 @@ class Warning:
                 if warning.notes:
                     message += f"    **Notes:** {warning.notes}\n\n"
                 
-            self.bot.say(message)
+        await self.bot.say(message)
 
         def check(message):
             try:
