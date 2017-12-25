@@ -148,7 +148,7 @@ class Warning:
             return len(message.content) > 5 and len(message.content) < 500
 
         #Wait for the user to enter a reason
-        self._deletion_queue(msg)
+        await self._deletion_queue(msg)
         user_msg = await self.bot.wait_for_message(timeout=120.0, author=mod, check=check)
 
         #If no reason was given then return false
@@ -157,7 +157,7 @@ class Warning:
         if user_msg.content in premade:
             resp = premade[user_msg.content]
 
-        self._deletion_queue(user_msg)
+        await self._deletion_queue(user_msg)
 
         if resp == 'stop':
             return False
@@ -177,12 +177,12 @@ class Warning:
                 self.bot.say('Note is too long.')
             return len(message.content) < 500
 
-        self._deletion_queue(msg)
+        await self._deletion_queue(msg)
         user_msg = await self.bot.wait_for_message(timeout=120.0, author=mod, check=check)
 
         resp = user_msg.clean_content if user_msg else False
 
-        self._deletion_queue(user_msg)
+        await self._deletion_queue(user_msg)
 
         if resp == 'done':
             return False
