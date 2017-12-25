@@ -252,8 +252,8 @@ class Warning:
         user = user[0]
 
         msg_plus_ids = self._get_warning_message(user.id, ids=True)
-        message = warnings["message"]
-        ids = warnings["ids"]
+        message = msg_plus_ids["message"]
+        ids = msg_plus_ids["ids"]
         await self.bot.say(message)
 
         def check(message):
