@@ -259,9 +259,9 @@ class Warning:
             row = row[0]
             id_dict[count] = row
             warnings = session.query(Warning_Table).filter_by(user_id=row).count()
-            warnings = f"`{count}{((5-len(count))*' ')}{warnings}`\t\t\t\t\t <@!{row}>\n"
+            warnings = f"`{count}{((5-len(str(count)))*' ')}{warnings}`\t\t\t\t\t <@!{row}>\n"
             if len(message) + len(warnings) < 2000:
-                message += warnings 
+                message += warnings
             else:
                 await self.bot.say(message)
                 message = warnings
