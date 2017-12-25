@@ -44,7 +44,7 @@ class Warning:
         self.bot = bot
 
     
-    def _get_warning_message(user_id, ids=False):
+    def _get_warning_message(self, user_id, ids=False):
         warnings = session.query(Warning_Table).filter_by(user_id=user_id).all()
 
         ids = []
@@ -65,7 +65,7 @@ class Warning:
                 if warning.notes:
                     message += f"    **Notes:** {warning.notes}\n\n"
                 count += 1
-        
+
         if ids:
             return message, ids
         return message
@@ -260,20 +260,18 @@ class Warning:
         await self.bot.say(f"Removed warning with ID {index}.")
 
 
-    def _get_more_info(id_dict):
+    async def _get_more_info(self, id_dict):
         def check(message):
             if message.content in id_dict:
                 return True
-            return False            
-        
+            return False
+
         msg = await self.bot.wait_for_message(timeout=30.0, check=check)
 
         if msg:
             user_id = id_dict[msg.content]
-
-
-
-
+            msg = self._get_warning_message(user_id)
+            await self.bot.say(msg)
 
 
     @commands.command(invoke_without_command=True)
@@ -299,7 +297,7 @@ class Warning:
         message += "`'-------------------------------------------------------------'`"
         await self.bot.say(message)
 
-        self._get_more_info(id_dict)
+        await self._get_more_info(id_dict)
 
 
     @commands.command(pass_context=True, invoke_without_command=True)
@@ -316,7 +314,7 @@ class Warning:
         else:
             user = ctx.message.author
 
-        message = _get_warning_message(user.id)
+        message = self._get_warning_message(user.id)
 
         if ctx.message.author.id == user.id:
             await self.bot.send_message(user, content=message)
