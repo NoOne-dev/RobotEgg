@@ -232,7 +232,7 @@ class Warning:
 
         user = user[0]
 
-        message, ids = _get_warning_message(user.id, ids=True)
+        message, ids = self._get_warning_message(user.id, ids=True)
         await self.bot.say(message)
 
         def check(message):
