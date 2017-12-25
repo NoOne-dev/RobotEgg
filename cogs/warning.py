@@ -51,12 +51,13 @@ class Warning:
             self.queue.append(message)
 
         if delete:
-            for item in self.queue:
-                try:
-                    await self.bot.delete_message(item)
-                    self.queue.remove(item)
-                except Exception as e:
-                    print(e)
+            try:
+                await self.bot.delete_messages(self.queue)
+            except ClientException:
+                while self.queue:
+                    await self.bot.delete_message(self.queue.pop())
+            except Exception as e:
+                print(e)
 
         return True
 
@@ -108,6 +109,7 @@ class Warning:
     async def _check_user(self, user, mod):
         """Check if the correct user is being warned"""
         msg = await self.bot.say(f"Warning: <@!{user.id}>. Is this correct?")
+        self._deletion_queue(msg)
 
         await self.bot.add_reaction(msg, '✅')
         await self.bot.add_reaction(msg, '🛑')
@@ -154,14 +156,14 @@ class Warning:
 
         #Wait for the user to enter a reason
         user_msg = await self.bot.wait_for_message(timeout=120.0, author=mod, check=check)
+        if user_msg:
+            await self._deletion_queue(user_msg)
 
         #If no reason was given then return false
         resp = user_msg.clean_content if user_msg else False
 
         if user_msg.content in premade:
             resp = premade[user_msg.content]
-
-        await self._deletion_queue(user_msg)
 
         if resp == 'stop':
             return False
@@ -183,10 +185,11 @@ class Warning:
 
         await self._deletion_queue(msg)
         user_msg = await self.bot.wait_for_message(timeout=120.0, author=mod, check=check)
+        
+        if user_msg:
+            await self._deletion_queue(user_msg)
 
         resp = user_msg.clean_content if user_msg else False
-
-        await self._deletion_queue(user_msg)
 
         if resp == 'done':
             return False
@@ -298,16 +301,17 @@ class Warning:
                 self.bot.say(content=None, embed=create_error("Enter a valid warning ID"))
                 return False
 
-        msg = await self.bot.wait_for_message(timeout=120.0, author=mod, check=check)
-        if msg:
-            await self._deletion_queue(msg)
+        user_msg = await self.bot.wait_for_message(timeout=120.0, author=mod, check=check)
+        
+        if user_msg:
+            await self._deletion_queue(user_msg)
 
-        if not msg.content:
+        if not user_msg.content:
             return False
 
         removal_message = ''
         try:
-            index = int(msg.content)
+            index = int(user_msg.content)
             record = session.query(Warning_Table).get(index)
             session.delete(record)
             session.commit()
