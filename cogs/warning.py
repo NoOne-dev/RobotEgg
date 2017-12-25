@@ -252,7 +252,7 @@ class Warning:
     @channels_allowed(["mod-commands"])
     @is_mod()
     async def warninglist(self):
-        message = ',--------------------------------------------------------------------.\n'
+        message = '`,--------------------------------------------------------------------.`\n'
         message += '`| #   | Amount  | User                                               |`\n'
         id_dict = {}
         count = 1
@@ -268,7 +268,7 @@ class Warning:
                 message = warnings
             count += 1
 
-        message += "'--------------------------------------------------------------------'"
+        message += "`'--------------------------------------------------------------------'`"
         await self.bot.say(message)
 
 
