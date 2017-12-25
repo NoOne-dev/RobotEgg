@@ -254,11 +254,10 @@ class Warning:
         message = '```\n'
         id_dict = {}
         count = 1
-        for row in session.query(Warning_Table.user_id).all():
-            print(row)
+        for row in session.query(Warning_Table.user_id).distinct().first():
             id_dict[count] = row
             warnings = session.query(Warning_Table).filter_by(user_id=row).count()
-            warnings = f"{count}\t<@!{int(row)}>\twarnings: {warnings}\n"
+            warnings = f"{count}\t<@!{row}>\twarnings: {warnings}\n"
             if len(message) + len(warnings) + 3 < 2000: #+3 because of the ```
                 message += warnings 
             else:
