@@ -54,7 +54,7 @@ class Warning:
             try:
                 await self.bot.delete_messages(self.queue)
                 self.queue = []
-            except ClientException:
+            except discord.ClientException:
                 while self.queue:
                     await self.bot.delete_message(self.queue.pop())
             except Exception as e:
@@ -110,7 +110,6 @@ class Warning:
     async def _check_user(self, user, mod):
         """Check if the correct user is being warned"""
         msg = await self.bot.say(f"Warning: <@!{user.id}>. Is this correct?")
-        self._deletion_queue(msg)
 
         await self.bot.add_reaction(msg, '✅')
         await self.bot.add_reaction(msg, '🛑')
@@ -121,6 +120,8 @@ class Warning:
                 pass
             else:
                 return user.id == mod.id and (str(reaction.emoji) == '✅' or str(reaction.emoji) == '🛑')
+
+        self._deletion_queue(msg)
 
         react = await self.bot.wait_for_reaction(timeout=60.0, message=msg, check=check)
         if react:
