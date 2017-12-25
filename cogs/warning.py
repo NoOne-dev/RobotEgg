@@ -68,7 +68,9 @@ class Warning:
                 count += 1
 
         if ids:
-            return {"message": message, "ids": ids}
+            msg_plus_ids = {"message": message, "ids": ids}
+            print(msg_plus_ids)
+            return msg_plus_ids
         return message
 
 
