@@ -68,7 +68,7 @@ class Warning:
                 count += 1
 
         if ids:
-            return = {"message": message, "ids": id_list}
+            return {"message": message, "ids": id_list}
         return message
 
 
