@@ -290,9 +290,9 @@ class Warning:
 
         # Get the warnings and the warning IDs for the specified user
         message, ids = self._get_warning_message(user.id, ids=True)
-        await self.bot.say(message)
+        warn_msg = await self.bot.say(message)
         prompt_msg = await self.bot.say(content="Enter the ID of the warning to remove.")
-        await self._deletion_queue(message)
+        await self._deletion_queue(warn_msg)
         await self._deletion_queue(prompt_msg)
 
         def check(message):
@@ -304,7 +304,7 @@ class Warning:
                 return False
 
         user_msg = await self.bot.wait_for_message(timeout=120.0, author=mod, check=check)
-        
+
         if user_msg:
             await self._deletion_queue(user_msg)
 
