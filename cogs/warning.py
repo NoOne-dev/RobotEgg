@@ -251,20 +251,23 @@ class Warning:
     @channels_allowed(["mod-commands"])
     @is_mod()
     async def warninglist(self):
-        message = ''
+        message = '```\n'
         id_dict = {}
         count = 1
         for row in session.query(Warning_Table.user_id).all():
+            print(row)
             id_dict[count] = row
             warnings = session.query(Warning_Table).filter_by(user_id=row).count()
-            warnings = f"{count}\t<@!{row}>\t{warnings} warnings\n"
-            if len(message) + len(warnings) < 2000:
+            warnings = f"{count}\t<@!{int(row)}>\twarnings: {warnings}\n"
+            if len(message) + len(warnings) + 3 < 2000: #+3 because of the ```
                 message += warnings 
             else:
+                message += '```'
                 await self.bot.say(message)
                 message = warnings
             count += 1
 
+        message += '```'
         await self.bot.say(message)
 
 
