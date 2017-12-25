@@ -71,8 +71,8 @@ class Warning:
                    "6": "Posting links to other Discord servers"}
 
         reason_msg = "Please provide a reason for the warning. Enter a message or choose a premade warning. Type 'stop' to cancel."
-        for key, reason in premade:
-            reason_msg += f"\n{key}: {reason}"
+        for key in premade:
+            reason_msg += f"\n{key}: {premade[key]}"
 
         msg = await self.bot.say(reason_msg)
 
