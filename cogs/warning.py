@@ -49,9 +49,8 @@ class Warning:
         """Set messages to delete"""
         if message != None:
             self.queue.append(message)
-            print(self.queue)
 
-        elif delete:
+        if delete:
             for item in self.queue:
                 print(item)
                 await self.bot.delete_message(item)
@@ -138,7 +137,7 @@ class Warning:
             reason_msg += f"\n{key}: {premade[key]}"
 
         msg = await self.bot.say(reason_msg) #Ask user to enter a reason
-        await self._deletion_queue(message=msg, delete=False)
+        await self._deletion_queue(msg, delete=False)
 
         def check(message):
             """Check if the reason is valid: either stop, premade or with a given length."""
@@ -159,7 +158,7 @@ class Warning:
         if user_msg.content in premade:
             resp = premade[user_msg.content]
 
-        await self._deletion_queue(user_msg)
+        await self._deletion_queue(user_msg, delete=False)
 
         if resp == 'stop':
             return False
@@ -179,12 +178,12 @@ class Warning:
                 self.bot.say('Note is too long.')
             return len(message.content) < 500
 
-        await self._deletion_queue(message=msg, delete=False)
+        await self._deletion_queue(msg, delete=False)
         user_msg = await self.bot.wait_for_message(timeout=120.0, author=mod, check=check)
 
         resp = user_msg.clean_content if user_msg else False
 
-        await self._deletion_queue(message=user_msg, delete=False)
+        await self._deletion_queue(user_msg, delete=False)
 
         if resp == 'done':
             return False
@@ -221,12 +220,12 @@ class Warning:
             reason = await self._get_reason(mod) #Get a reason
             if not reason:
                 await self.bot.say("Cancelled.")
-                await self._deletion_queue(message=None, delete=True)
+                await self._deletion_queue(None, delete=True)
                 return False
             notes = await self._get_notes(mod) #Get any further notes
         else:
             await self.bot.say("Cancelled.")
-            await self._deletion_queue(message=None, delete=True)
+            await self._deletion_queue(None, delete=True)
             return False
 
         notes = '' if not notes else notes
@@ -255,6 +254,7 @@ class Warning:
             mod_message += f"**Notes:** {notes}\n"
         mod_message += f"\nUser has **{count} {'warnings' if count > 1 else 'warning'}**."
         await self.bot.say(mod_message)
+        await self.bot._deletion_queue(None, delete=True)
 
 
         user_message = f"Hi {user.name},\n\nYou have received a warning in Eggserver Alpha.\n\n"
@@ -284,7 +284,7 @@ class Warning:
         message, ids = self._get_warning_message(user.id, ids=True)
         await self.bot.say(message)
         prompt_msg = await self.bot.say(content="Enter the ID of the warning to remove.")
-        self._deletion_queue(msg)
+        self._deletion_queue(msg, delete=False)
 
         def check(message):
             """Check if the warning to remove is indeed valid"""
@@ -295,7 +295,7 @@ class Warning:
                 return False
 
         msg = await self.bot.wait_for_message(timeout=120.0, author=mod, check=check)
-        await self._deletion_queue(msg)
+        await self._deletion_queue(msg, delete=False)
 
         if not msg.content:
             return False
