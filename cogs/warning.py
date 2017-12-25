@@ -63,10 +63,21 @@ class Warning:
 
 
     async def _get_reason(self, mod):
-        msg = await self.bot.say(f"Please provide a reason for the warning. Type 'stop' to cancel.")
+        premade = {"1": "NSFW content",
+                   "2": "Very disturbing content",
+                   "3": "Use of slurs",
+                   "4": "Harassment / personal attacks",
+                   "5": "Spam",
+                   "6": "Posting links to other Discord servers"}
+
+        reason_msg = "Please provide a reason for the warning. Enter a message or choose a premade warning. Type 'stop' to cancel."
+        for key, reason in premade:
+            reason_msg += f"\n{key}: {reason}"
+
+        msg = await self.bot.say(reason_msg)
 
         def check(message):
-            if message.content == 'stop':
+            if message.content == 'stop' or if message.content in premade:
                 return True
             if len(message.content) < 5:
                 self.bot.say('Provide a valid reason.')
@@ -75,8 +86,11 @@ class Warning:
             return len(message.content) > 5 and len(message.content) < 500
 
         msg = await self.bot.wait_for_message(timeout=120.0, author=mod, check=check)
-        
+
         resp = msg.clean_content if msg else False
+
+        if msg.content in premade:
+            resp = premade[msg.content]
 
         if resp == 'stop':
             return False
@@ -94,7 +108,7 @@ class Warning:
                 self.bot.say('Note is too long.')
             return len(message.content) < 500
 
-        msg = await self.bot.wait_for_message(timeout=120.0, author=mod)
+        msg = await self.bot.wait_for_message(timeout=120.0, author=mod, check=check)
 
         resp = msg.clean_content if msg else False
 
@@ -155,19 +169,79 @@ class Warning:
             await self.bot.say(content=None, embed=create_error("entering warning into database: {e}"))
 
         count = session.query(Warning_Table).filter_by(user_id=user.id).count()
-        await self.bot.say(f"<@!{mod.id}>, you have warned user <@!{user.id}>.\n\n**Reason:** {reason}\n**Notes:** {notes}\n\nUser has **{count} {'warnings' if count > 1 else 'warning'}**.")
 
+        mod_message = f"<@!{mod.id}>, you have warned user <@!{user.id}>.\n\n"
+        mod_message += "**Reason:** {reason}\n"
+        if notes:
+            mod_message += "**Notes:** {notes}\n"
+        mod_message += "\nUser has **{count} {'warnings' if count > 1 else 'warning'}**."
+        await self.bot.say(mod_message)
+
+
+        user_message = f"Hi {user.name},\n\nYou have received a warning in Eggserver Alpha.\n\n"
+        user_message += "**Reason:** {reason}.\n"
+        user_message += "You have **{count} {'warnings' if count > 1 else 'warning'}**.\n\n"
+        user_message += "If you have any further questions or concerns, please ask the mods."
         try:
-            await self.bot.send_message(user, content=f"Hi {user.name},\n\nYou have received a warning in Eggserver Alpha.\n\n**Reason:** {reason}.\nYou have **{count} {'warnings' if count > 1 else 'warning'}**.\n\nIf you have any further questions or concerns, please ask the mods.")
+            await self.bot.send_message(user, content=user_message)
         except:
-            await self.bot.say(f"Error DMing <@!{user.id}>. Please follow up.")
+            await self.bot.say(f"<@!{mod.id}>: error DMing <@!{user.id}>. Please follow up.")
 
 
     @commands.command()
+    @channels_allowed(["mod-commands"])
     @is_mod()
     async def removewarning(self, ctx):
         """Remove warning from user"""
-        pass
+        user = ctx.message.mentions
+        mod = ctx.message.author
+        if len(user) > 1:
+            await self.bot.say(content=None, embed=create_error("Too many users specified"))
+            return False
+        if len(user) < 1:
+            await self.bot.say(content=None, embed=create_error("Please specify a user"))
+            return False
+
+        user = user[0]
+
+        warnings = session.query(Warning_Table).filter_by(user_id=user.id).all()
+        
+        message = ''
+        ids = []
+        if len(warnings) == 0:
+             message = "This user has no warnings."
+        else:
+            for warning in warnings:
+                ids.append(warning.index)
+                message += f"\n**Warning ID: {warning.index}** \n"
+                message += f"    **Date:** {warning.created_on.year}-{warning.created_on.month}-{warning.created_on.day}\n"
+                message += f"    **By:** <@!{warning.created_by}>\n"
+                message += f"    **Reason:** {warning.reason}\n"
+                if warning.notes:
+                    message += f"    **Notes:** {warning.notes}\n\n"
+                
+            self.bot.say(message)
+
+        def check(message):
+            try:
+                return int(message.content) in ids
+            except:
+                await self.bot.say(content=None, embed=create_error("Enter a valid warning ID"))
+                return False
+
+        await self.bot.say(content="Enter the ID of the warning to remove.")
+        msg = await self.bot.wait_for_message(timeout=120.0, author=mod, check=check)
+
+        try:
+            index = int(msg.content)
+            record = session.query(Warning_Table).get(index)
+            session.delete(record)
+            session.commit()
+        except Exception as e:
+            await self.bot.say(content=None, embed=create_error(f"Error deleting from DB: {e}"))
+            return False
+        
+        await self.bot.say(f"Removed warning with ID {index}.")
 
 
     @commands.command(pass_context=True, invoke_without_command=True)
@@ -193,7 +267,7 @@ class Warning:
             count = 1
             for warning in warnings:
                 message += f"\n**Warning {count}:** \n"
-                message += f"    **Date:** {warning.created_on.year}-{warning.created_on.month}-{warning.created_on.day}-\n"
+                message += f"    **Date:** {warning.created_on.year}-{warning.created_on.month}-{warning.created_on.day}\n"
                 message += f"    **By:** <@!{warning.created_by}>\n"
                 message += f"    **Reason:** {warning.reason}\n"
                 if warning.notes:
