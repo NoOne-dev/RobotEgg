@@ -42,6 +42,19 @@ class Warning:
     """Keep track of user warnings"""
     def __init__(self, bot):
         self.bot = bot
+        self.queue = []
+
+    
+    async def _deletion_queue(self, message=None, delete=False):
+        """Set messages to delete"""
+        if message:
+            self.queue.append(message)
+
+        if delete:
+            for message in self.queue:
+                await self.bot.delete_message(message)
+        
+        return True
 
 
     def _get_warning_message(self, user_id, ids=False):
@@ -135,13 +148,16 @@ class Warning:
             return len(message.content) > 5 and len(message.content) < 500
 
         #Wait for the user to enter a reason
-        msg = await self.bot.wait_for_message(timeout=120.0, author=mod, check=check)
+        self._deletion_queue(msg)
+        user_msg = await self.bot.wait_for_message(timeout=120.0, author=mod, check=check)
 
         #If no reason was given then return false
-        resp = msg.clean_content if msg else False
+        resp = user_msg.clean_content if user_msg else False
 
-        if msg.content in premade:
-            resp = premade[msg.content]
+        if user_msg.content in premade:
+            resp = premade[user_msg.content]
+
+        self._deletion_queue(user_msg)
 
         if resp == 'stop':
             return False
@@ -161,16 +177,19 @@ class Warning:
                 self.bot.say('Note is too long.')
             return len(message.content) < 500
 
-        msg = await self.bot.wait_for_message(timeout=120.0, author=mod, check=check)
+        self._deletion_queue(msg)
+        user_msg = await self.bot.wait_for_message(timeout=120.0, author=mod, check=check)
 
-        resp = msg.clean_content if msg else False
+        resp = user_msg.clean_content if user_msg else False
+
+        self._deletion_queue(user_msg)
 
         if resp == 'done':
             return False
 
         # Attach the link of any attachment to the note
-        if msg.attachments:
-            for attachment in msg.attachments:
+        if user_msg.attachments:
+            for attachment in user_msg.attachments:
                 resp += f' << attachment: {attachment["url"]} >>'
 
         return resp
@@ -199,11 +218,13 @@ class Warning:
         if await self._check_user(user, mod): #Correct user confirmation
             reason = await self._get_reason(mod) #Get a reason
             if not reason:
-                await self.bot.say("Cancelled.")
+                msg = await self.bot.say("Cancelled.")
+                await self._deletion_queue(delete=True)
                 return False
             notes = await self._get_notes(mod) #Get any further notes
         else:
-            await self.bot.say("Cancelled.")
+            msg = await self.bot.say("Cancelled.")
+            await self._deletion_queue(delete=True)
             return False
 
         notes = '' if not notes else notes
@@ -260,7 +281,8 @@ class Warning:
         # Get the warnings and the warning IDs for the specified user
         message, ids = self._get_warning_message(user.id, ids=True)
         await self.bot.say(message)
-        await self.bot.say(content="Enter the ID of the warning to remove.")
+        prompt_msg = await self.bot.say(content="Enter the ID of the warning to remove.")
+        self._deletion_queue(msg)
 
         def check(message):
             """Check if the warning to remove is indeed valid"""
@@ -271,6 +293,7 @@ class Warning:
                 return False
 
         msg = await self.bot.wait_for_message(timeout=120.0, author=mod, check=check)
+        await self._deletion_queue(msg)
 
         if not msg.content:
             return False
@@ -284,6 +307,7 @@ class Warning:
             await self.bot.say(content=None, embed=create_error(f"Error deleting from DB: {e}"))
             return False
 
+        await self._deletion_queue(delete=True)
         await self.bot.say(f"Removed warning with ID {index}.")
 
 
