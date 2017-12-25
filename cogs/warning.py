@@ -232,6 +232,9 @@ class Warning:
         await self.bot.say(content="Enter the ID of the warning to remove.")
         msg = await self.bot.wait_for_message(timeout=120.0, author=mod, check=check)
 
+        if not msg.content:
+            return False
+        
         try:
             index = int(msg.content)
             record = session.query(Warning_Table).get(index)
@@ -254,7 +257,7 @@ class Warning:
         for row in session.query(Warning_Table.user_id).all():
             id_dict[count] = row
             warnings = session.query(Warning_Table).filter_by(user_id=row).count()
-            warnings = f"{count}\t<@!{row}>\t{warnings} warnings">
+            warnings = f"{count}\t<@!{row}>\t{warnings} warnings\n"
             if len(message) + len(warnings) < 2000:
                 message += warnings 
             else:
