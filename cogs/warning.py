@@ -121,7 +121,7 @@ class Warning:
             else:
                 return user.id == mod.id and (str(reaction.emoji) == '✅' or str(reaction.emoji) == '🛑')
 
-        self._deletion_queue(msg)
+        await self._deletion_queue(msg)
 
         react = await self.bot.wait_for_reaction(timeout=60.0, message=msg, check=check)
         if react:
