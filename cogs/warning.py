@@ -103,23 +103,24 @@ class Warning:
 
         if msg:
             user_id = id_dict[msg.content]
+            await self._deletion_queue(msg)
             msg = self._get_warning_message(user_id)
             await self.bot.say(msg)
 
 
     async def _check_user(self, user, mod):
         """Check if the correct user is being warned"""
-        msg = await self.bot.say(f"Warning: <@!{user.id}>. Is this correct?")
-
-        await self.bot.add_reaction(msg, '✅')
-        await self.bot.add_reaction(msg, '🛑')
-
         def check(reaction, user):
             """Check if the reaction is by the bot and then if it's an OK or a not OK"""
             if user.id == msg.author.id:
                 pass
             else:
                 return user.id == mod.id and (str(reaction.emoji) == '✅' or str(reaction.emoji) == '🛑')
+
+        msg = await self.bot.say(f"Warning: <@!{user.id}>. Is this correct?")
+
+        await self.bot.add_reaction(msg, '✅')
+        await self.bot.add_reaction(msg, '🛑')
 
         await self._deletion_queue(msg)
 
@@ -131,6 +132,15 @@ class Warning:
 
     async def _get_reason(self, mod):
         """Gets a reason from the reporting party"""
+        def check(message):
+            """Check if the reason is valid: either stop, premade or with a given length."""
+            if message.content == 'stop' or message.content in premade:
+                return True
+            if len(message.content) < 5:
+                self.bot.say('Provide a valid reason.')
+            if len(message.content) > 500:
+                self.bot.say('Given reason is too long.')
+            return len(message.content) > 5 and len(message.content) < 500
 
         reason_msg = "Please provide a reason. Enter a message or choose a premade warning. Type 'stop' to cancel.\n"
         premade = {"1": "NSFW content",
@@ -145,16 +155,6 @@ class Warning:
 
         msg = await self.bot.say(reason_msg) #Ask user to enter a reason
         await self._deletion_queue(msg)
-
-        def check(message):
-            """Check if the reason is valid: either stop, premade or with a given length."""
-            if message.content == 'stop' or message.content in premade:
-                return True
-            if len(message.content) < 5:
-                self.bot.say('Provide a valid reason.')
-            if len(message.content) > 500:
-                self.bot.say('Given reason is too long.')
-            return len(message.content) > 5 and len(message.content) < 500
 
         #Wait for the user to enter a reason
         user_msg = await self.bot.wait_for_message(timeout=120.0, author=mod, check=check)
@@ -175,8 +175,6 @@ class Warning:
 
     async def _get_notes(self, mod):
         """Gets any notes from the reporting party"""
-        msg = await self.bot.say(f"Optional: provide any notes or attachments (such as screenshots) or reply with 'done' to skip the wait.")
-
         def check(message):
             """Check if a note should be entered and if the length is valid"""
             if message.content.lower() == 'done':
@@ -185,9 +183,10 @@ class Warning:
                 self.bot.say('Note is too long.')
             return len(message.content) < 500
 
+        msg = await self.bot.say(f"Optional: provide any notes or attachments (such as screenshots) or reply with 'done' to skip the wait.")
         await self._deletion_queue(msg)
+
         user_msg = await self.bot.wait_for_message(timeout=120.0, author=mod, check=check)
-        
         if user_msg:
             await self._deletion_queue(user_msg)
 
@@ -218,6 +217,7 @@ class Warning:
 
             user = user[0]
             mod = ctx.message.author
+            await self._deletion_queue(ctx.message)
             date = datetime.datetime.now()
 
         except Exception as e:
@@ -280,21 +280,6 @@ class Warning:
     @is_mod()
     async def removewarning(self, ctx):
         """Remove warning from user"""
-        user = ctx.message.mentions
-        mod = ctx.message.author
-        if len(user) != 1:
-            await self.bot.say(content=None, embed=create_error("Please specify exactly one user."))
-            return False
-
-        user = user[0]
-
-        # Get the warnings and the warning IDs for the specified user
-        message, ids = self._get_warning_message(user.id, ids=True)
-        warn_msg = await self.bot.say(message)
-        prompt_msg = await self.bot.say(content="Enter the ID of the warning to remove.")
-        await self._deletion_queue(warn_msg)
-        await self._deletion_queue(prompt_msg)
-
         def check(message):
             """Check if the warning to remove is indeed valid"""
             try:
@@ -303,8 +288,25 @@ class Warning:
                 self.bot.say(content=None, embed=create_error("Enter a valid warning ID"))
                 return False
 
-        user_msg = await self.bot.wait_for_message(timeout=120.0, author=mod, check=check)
+        user = ctx.message.mentions
+        mod = ctx.message.author
+        await self._deletion_queue(ctx.message)
 
+        if len(user) != 1:
+            await self.bot.say(content=None, embed=create_error("Please specify exactly one user."))
+            return False
+
+        user = user[0]
+
+        # Get the warnings and the warning IDs for the specified user
+        message, ids = self._get_warning_message(user.id, ids=True)
+
+        warn_msg = await self.bot.say(message)
+        await self._deletion_queue(warn_msg)
+        prompt_msg = await self.bot.say(content="Enter the ID of the warning to remove.")
+        await self._deletion_queue(prompt_msg)
+
+        user_msg = await self.bot.wait_for_message(timeout=120.0, author=mod, check=check)
         if user_msg:
             await self._deletion_queue(user_msg)
 
@@ -353,6 +355,7 @@ class Warning:
 
         # If a mod enters a number give more info about the warnings of that user
         await self._get_more_info(id_dict)
+        await self._deletion_queue(None, delete=True)
 
 
     @commands.command(pass_context=True, invoke_without_command=True)
