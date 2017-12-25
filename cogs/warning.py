@@ -56,7 +56,7 @@ class Warning:
             count = 1
             for warning in warnings:
                 if ids:
-                    ids.append(warning.index)
+                    id_list.append(warning.index)
                     message += f"\n**Warning ID {warning.index}:**\n"
                 else:
                     message += f"\n**Warning {count}:** \n"
@@ -68,7 +68,7 @@ class Warning:
                 count += 1
 
         if ids:
-            return {"message": message, "ids": id_list}
+            return message, id_list
         return message
 
 
@@ -251,9 +251,7 @@ class Warning:
 
         user = user[0]
 
-        msg_plus_ids = self._get_warning_message(user.id, True)
-        message = msg_plus_ids["message"]
-        ids = msg_plus_ids["ids"]
+        message, ids = self._get_warning_message(user.id, ids=True)
         await self.bot.say(message)
 
         def check(message):
