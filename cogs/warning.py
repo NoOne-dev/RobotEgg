@@ -252,8 +252,8 @@ class Warning:
     @channels_allowed(["mod-commands"])
     @is_mod()
     async def warninglist(self):
-        message = '`,--------------------------------------------------------------------.`\n'
-        message += '`| #   | Amount  | User                                               |`\n'
+        message = '`,-------------------------------------------------------------.`\n'
+        message += '`| #   | Amount  | User                                        |`\n'
         id_dict = {}
         count = 1
         for row in session.query(Warning_Table.user_id).distinct():
@@ -268,7 +268,7 @@ class Warning:
                 message = warnings
             count += 1
 
-        message += "`'--------------------------------------------------------------------'`"
+        message += "`'-------------------------------------------------------------'`"
         await self.bot.say(message)
 
 
