@@ -136,7 +136,7 @@ class Warning:
             user = user[0]
             mod = ctx.message.author
             date = datetime.datetime.now()
-        
+
         except Exception as e:
             await self.bot.say(content=None, embed=create_error(f"Error creating warning: {e}"))
             return False
@@ -205,11 +205,12 @@ class Warning:
         user = user[0]
 
         warnings = session.query(Warning_Table).filter_by(user_id=user.id).all()
-        
+
         message = ''
         ids = []
         if len(warnings) == 0:
-             message = "This user has no warnings."
+            message = "This user has no warnings."
+            return
         else:
             for warning in warnings:
                 ids.append(warning.index)
@@ -219,7 +220,6 @@ class Warning:
                 message += f"    **Reason:** {warning.reason}\n"
                 if warning.notes:
                     message += f"    **Notes:** {warning.notes}\n\n"
-                
         await self.bot.say(message)
 
         def check(message):
@@ -240,8 +240,35 @@ class Warning:
         except Exception as e:
             await self.bot.say(content=None, embed=create_error(f"Error deleting from DB: {e}"))
             return False
-        
+
         await self.bot.say(f"Removed warning with ID {index}.")
+
+
+    @commands.command(invoke_without_command=True)
+    @channels_allowed(["mod-commands"])
+    @is_mod()
+    async def warninglist(self, ctx):
+        message = ''
+        id_dict = {}
+        count = 1
+        for row in session.query(Warning_Table.user_id).all():
+            id_dict[count] = row
+            warnings = session.query(Warning_Table).filter_by(user_id=row).count()
+            warnings = f"{count}\t<@!{row}>\t{warnings} warnings">
+            if len(message) + len(warnings) < 2000:
+                message += warnings 
+            else:
+                await self.bot.say(message)
+                message = warnings
+            count += 1
+
+        await self.bot.say(message)
+
+
+
+
+
+
 
 
     @commands.command(pass_context=True, invoke_without_command=True)
@@ -262,7 +289,7 @@ class Warning:
 
         message = ''
         if len(warnings) == 0:
-             message = "You have no warnings yet!"
+            message = "You have no warnings yet!"
         else:
             count = 1
             for warning in warnings:
@@ -280,8 +307,8 @@ class Warning:
             if ctx.message.channel.id == config["channels"]["mod-commands"]:
                 await self.bot.say(message)
             else:
-                await self.bot.say(content=None, embed=create_error("You can only view your own warnings."))
-        
+                await self.bot.say(content=None, embed=create_error("You may only view your own warnings."))
+
 
 def setup(bot):
     bot.add_cog(Warning(bot))
