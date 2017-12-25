@@ -49,7 +49,7 @@ class Warning:
         warnings = session.query(Warning_Table).filter_by(user_id=user_id).all()
 
         ids = []
-        message = ''
+        message = f"**Warnings for <@!{user_id}>**\n"
         if len(warnings) == 0:
             message = "There are no warnings for this user."
         else:
@@ -57,14 +57,14 @@ class Warning:
             for warning in warnings:
                 if ids:
                     ids.append(warning.index)
-                    message += f"\n**Warning ID {warning.index}:** \n"
+                    message += f"\n**Warning ID {warning.index}:**\n"
                 else:
                     message += f"\n**Warning {count}:** \n"
-                message += f"    **Date:** {warning.created_on.year}-{warning.created_on.month}-{warning.created_on.day}\n"
-                message += f"    **By:** <@!{warning.created_by}>\n"
-                message += f"    **Reason:** {warning.reason}\n"
+                message += f"    _Date:_ {warning.created_on.year}-{warning.created_on.month}-{warning.created_on.day}\n"
+                message += f"    _By:_ <@!{warning.created_by}>\n"
+                message += f"    _Reason:_ {warning.reason}\n"
                 if warning.notes:
-                    message += f"    **Notes:** {warning.notes}\n\n"
+                    message += f"    _Notes:_ {warning.notes}\n\n"
                 count += 1
 
         if ids:
@@ -74,7 +74,6 @@ class Warning:
 
     async def _get_more_info(self, id_dict):
         """Waits for user to provide a number to generate a warning list for"""
-        print(id_dict)
         def check(message):
             if message.content in id_dict:
                 return True
@@ -252,7 +251,7 @@ class Warning:
 
         user = user[0]
 
-        message, ids = self._get_warning_message(user.id, ids=True)
+        self, message, ids = self._get_warning_message(user.id, ids=True)
         await self.bot.say(message)
 
         def check(message):
