@@ -45,6 +45,7 @@ class Warning:
 
     
     def _get_warning_message(self, user_id, ids=False):
+        """Generate message showing warnings"""
         warnings = session.query(Warning_Table).filter_by(user_id=user_id).all()
 
         ids = []
@@ -71,7 +72,24 @@ class Warning:
         return message
 
 
+    async def _get_more_info(self, id_dict):
+        """Waits for user to provide a number to generate a warning list for"""
+        print(id_dict)
+        def check(message):
+            if message.content in id_dict:
+                return True
+            return False
+
+        msg = await self.bot.wait_for_message(timeout=30.0, check=check)
+
+        if msg:
+            user_id = id_dict[msg.content]
+            msg = self._get_warning_message(user_id)
+            await self.bot.say(msg)
+
+
     async def _check_user(self, user, mod):
+        """Check if the correct user is being warned"""
         msg = await self.bot.say(f"Warning: <@!{user.id}>. Is this correct?")
 
         await self.bot.add_reaction(msg, '✅')
@@ -90,6 +108,7 @@ class Warning:
 
 
     async def _get_reason(self, mod):
+        """Gets a reason from the reporting party"""
         premade = {"1": "NSFW content",
                    "2": "Very disturbing content",
                    "3": "Use of slurs",
@@ -127,6 +146,7 @@ class Warning:
 
 
     async def _get_notes(self, mod):
+        """Gets any notes from the reporting party"""
         msg = await self.bot.say(f"Optional: provide any notes or attachments (such as screenshots) or reply with 'done' to skip the wait.")
 
         def check(message):
@@ -260,35 +280,21 @@ class Warning:
         await self.bot.say(f"Removed warning with ID {index}.")
 
 
-    async def _get_more_info(self, id_dict):
-        print(id_dict)
-        def check(message):
-            if message.content in id_dict:
-                return True
-            return False
-
-        msg = await self.bot.wait_for_message(timeout=30.0, check=check)
-
-        if msg:
-            user_id = id_dict[msg.content]
-            msg = self._get_warning_message(user_id)
-            await self.bot.say(msg)
-
-
     @commands.command(invoke_without_command=True)
     @channels_allowed(["mod-commands"])
     @is_mod()
     async def warninglist(self):
+        """Generate complete list of warnings"""
         message = '`,-------------------------------------------------------------.`\n'
         message += '`| #   | Amount  | User                                        |`\n'
         id_dict = {}
         count = 1
         for row in session.query(Warning_Table.user_id).distinct():
             row = row[0]
-            id_dict[count] = row
+            id_dict[str(count)] = row
             warnings = session.query(Warning_Table).filter_by(user_id=row).count()
             warnings = f"`| {count}{((4-len(str(count)))*' ')}| {warnings}{((8-len(str(warnings)))*' ')}|`  <@!{row}>\n"
-            if len(message) + len(warnings) < 2000:
+            if len(message) + len(warnings) < 1000:
                 message += warnings
             else:
                 await self.bot.say(message)
@@ -317,11 +323,11 @@ class Warning:
 
         message = self._get_warning_message(user.id)
 
-        if ctx.message.author.id == user.id:
-            await self.bot.send_message(user, content=message)
+        if ctx.message.channel.id == config["channels"]["mod-commands"]:
+            await self.bot.say(message)
         else:
-            if ctx.message.channel.id == config["channels"]["mod-commands"]:
-                await self.bot.say(message)
+            if ctx.message.author.id == user.id:
+                await self.bot.send_message(user, content=message)
             else:
                 await self.bot.say(content=None, embed=create_error("You may only view your own warnings."))
 
