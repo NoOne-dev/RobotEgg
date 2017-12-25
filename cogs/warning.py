@@ -234,7 +234,7 @@ class Warning:
 
         if not msg.content:
             return False
-        
+
         try:
             index = int(msg.content)
             record = session.query(Warning_Table).get(index)
@@ -250,7 +250,7 @@ class Warning:
     @commands.command(invoke_without_command=True)
     @channels_allowed(["mod-commands"])
     @is_mod()
-    async def warninglist(self, ctx):
+    async def warninglist(self):
         message = ''
         id_dict = {}
         count = 1
