@@ -47,12 +47,14 @@ class Warning:
     
     async def _deletion_queue(self, message=None, delete=False):
         """Set messages to delete"""
-        if message:
+        if message != None:
             self.queue.append(message)
+            print(queue)
 
-        if delete:
-            for message in self.queue:
-                await self.bot.delete_message(message)
+        elif delete:
+            for item in self.queue:
+                print(item)
+                await self.bot.delete_message(item)
         
         return True
 
@@ -136,6 +138,7 @@ class Warning:
             reason_msg += f"\n{key}: {premade[key]}"
 
         msg = await self.bot.say(reason_msg) #Ask user to enter a reason
+        await self._deletion_queue(message=msg, delete=False)
 
         def check(message):
             """Check if the reason is valid: either stop, premade or with a given length."""
@@ -148,7 +151,6 @@ class Warning:
             return len(message.content) > 5 and len(message.content) < 500
 
         #Wait for the user to enter a reason
-        await self._deletion_queue(msg)
         user_msg = await self.bot.wait_for_message(timeout=120.0, author=mod, check=check)
 
         #If no reason was given then return false
@@ -177,12 +179,12 @@ class Warning:
                 self.bot.say('Note is too long.')
             return len(message.content) < 500
 
-        await self._deletion_queue(msg)
+        await self._deletion_queue(message=msg, delete=False)
         user_msg = await self.bot.wait_for_message(timeout=120.0, author=mod, check=check)
 
         resp = user_msg.clean_content if user_msg else False
 
-        await self._deletion_queue(user_msg)
+        await self._deletion_queue(message=user_msg, delete=False)
 
         if resp == 'done':
             return False
@@ -219,12 +221,12 @@ class Warning:
             reason = await self._get_reason(mod) #Get a reason
             if not reason:
                 msg = await self.bot.say("Cancelled.")
-                await self._deletion_queue(delete=True)
+                await self._deletion_queue(message=None, delete=True)
                 return False
             notes = await self._get_notes(mod) #Get any further notes
         else:
             msg = await self.bot.say("Cancelled.")
-            await self._deletion_queue(delete=True)
+            await self._deletion_queue(message=None, delete=True)
             return False
 
         notes = '' if not notes else notes
