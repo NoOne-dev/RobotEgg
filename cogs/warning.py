@@ -254,7 +254,7 @@ class Warning:
             mod_message += f"**Notes:** {notes}\n"
         mod_message += f"\nUser has **{count} {'warnings' if count > 1 else 'warning'}**."
         await self.bot.say(mod_message)
-        await self.bot._deletion_queue(None, delete=True)
+        await self._deletion_queue(None, delete=True)
 
 
         user_message = f"Hi {user.name},\n\nYou have received a warning in Eggserver Alpha.\n\n"
