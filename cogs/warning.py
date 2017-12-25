@@ -188,7 +188,7 @@ class Warning:
             await self.bot.say(f"<@!{mod.id}>: error DMing <@!{user.id}>. Please follow up.")
 
 
-    @commands.command()
+    @commands.command(pass_context=True)
     @channels_allowed(["mod-commands"])
     @is_mod()
     async def removewarning(self, ctx):
