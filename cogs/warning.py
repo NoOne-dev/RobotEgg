@@ -252,14 +252,14 @@ class Warning:
     @channels_allowed(["mod-commands"])
     @is_mod()
     async def warninglist(self):
-        message = '`#\tWarnings\tName`\n'
+        message = '`#   | Amount  | Name`\n'
         id_dict = {}
         count = 1
         for row in session.query(Warning_Table.user_id).distinct():
             row = row[0]
             id_dict[count] = row
             warnings = session.query(Warning_Table).filter_by(user_id=row).count()
-            warnings = f"`{count}{((5-len(str(count)))*' ')}{warnings}`\t\t\t\t\t <@!{row}>\n"
+            warnings = f"`{count}{((4-len(str(count)))*' ')}| {warnings}{((8-len(str(warnings)))*' ')}|`  <@!{row}>\n"
             if len(message) + len(warnings) < 2000:
                 message += warnings
             else:
