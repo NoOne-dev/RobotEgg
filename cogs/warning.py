@@ -52,8 +52,11 @@ class Warning:
 
         if delete:
             for item in self.queue:
-                print(item)
-                await self.bot.delete_message(item)
+                try:
+                    await self.bot.delete_message(item)
+                    self.queue.remove(item)
+                except Exception as e:
+                    print(e)
 
         return True
 
@@ -284,6 +287,7 @@ class Warning:
         message, ids = self._get_warning_message(user.id, ids=True)
         await self.bot.say(message)
         prompt_msg = await self.bot.say(content="Enter the ID of the warning to remove.")
+        await self._deletion_queue(message, delete=False)
         self._deletion_queue(prompt_msg, delete=False)
 
         def check(message):
@@ -301,17 +305,20 @@ class Warning:
         if not msg.content:
             return False
 
+        removal_message = ''
         try:
             index = int(msg.content)
             record = session.query(Warning_Table).get(index)
             session.delete(record)
             session.commit()
+            removal_message += f"<@!{mod.id}> removed warning from <@!{user.id}> with ID {index}.\n"
+            removal_message += f"Removed item: {record.reason}"
+            await self.bot.say(removal_message)
         except Exception as e:
             await self.bot.say(content=None, embed=create_error(f"Error deleting from DB: {e}"))
             return False
 
         await self._deletion_queue(delete=True)
-        await self.bot.say(f"Removed warning with ID {index}.")
 
 
     @commands.command(invoke_without_command=True)
