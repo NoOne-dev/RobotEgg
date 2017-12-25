@@ -43,6 +43,33 @@ class Warning:
     def __init__(self, bot):
         self.bot = bot
 
+    
+    def _get_warning_message(user_id, ids=False):
+        warnings = session.query(Warning_Table).filter_by(user_id=user_id).all()
+
+        ids = []
+        message = ''
+        if len(warnings) == 0:
+            message = "There are no warnings for this user."
+        else:
+            count = 1
+            for warning in warnings:
+                if ids:
+                    ids.append(warning.index)
+                    message += f"\n**Warning ID {warning.index}:** \n"
+                else:
+                    message += f"\n**Warning {count}:** \n"
+                message += f"    **Date:** {warning.created_on.year}-{warning.created_on.month}-{warning.created_on.day}\n"
+                message += f"    **By:** <@!{warning.created_by}>\n"
+                message += f"    **Reason:** {warning.reason}\n"
+                if warning.notes:
+                    message += f"    **Notes:** {warning.notes}\n\n"
+                count += 1
+        
+        if ids:
+            return message, ids
+        return message
+
 
     async def _check_user(self, user, mod):
         msg = await self.bot.say(f"Warning: <@!{user.id}>. Is this correct?")
@@ -205,22 +232,7 @@ class Warning:
 
         user = user[0]
 
-        warnings = session.query(Warning_Table).filter_by(user_id=user.id).all()
-
-        message = ''
-        ids = []
-        if len(warnings) == 0:
-            message = "This user has no warnings."
-            return
-        else:
-            for warning in warnings:
-                ids.append(warning.index)
-                message += f"\n**Warning ID: {warning.index}** \n"
-                message += f"    **Date:** {warning.created_on.year}-{warning.created_on.month}-{warning.created_on.day}\n"
-                message += f"    **By:** <@!{warning.created_by}>\n"
-                message += f"    **Reason:** {warning.reason}\n"
-                if warning.notes:
-                    message += f"    **Notes:** {warning.notes}\n\n"
+        message, ids = _get_warning_message(user.id, ids=True)
         await self.bot.say(message)
 
         def check(message):
@@ -248,6 +260,22 @@ class Warning:
         await self.bot.say(f"Removed warning with ID {index}.")
 
 
+    def _get_more_info(id_dict):
+        def check(message):
+            if message.content in id_dict:
+                return True
+            return False            
+        
+        msg = await self.bot.wait_for_message(timeout=30.0, check=check)
+
+        if msg:
+            user_id = id_dict[msg.content]
+
+
+
+
+
+
     @commands.command(invoke_without_command=True)
     @channels_allowed(["mod-commands"])
     @is_mod()
@@ -271,6 +299,8 @@ class Warning:
         message += "`'-------------------------------------------------------------'`"
         await self.bot.say(message)
 
+        self._get_more_info(id_dict)
+
 
     @commands.command(pass_context=True, invoke_without_command=True)
     async def warnings(self, ctx):
@@ -286,21 +316,7 @@ class Warning:
         else:
             user = ctx.message.author
 
-        warnings = session.query(Warning_Table).filter_by(user_id=user.id).all()
-
-        message = ''
-        if len(warnings) == 0:
-            message = "You have no warnings yet!"
-        else:
-            count = 1
-            for warning in warnings:
-                message += f"\n**Warning {count}:** \n"
-                message += f"    **Date:** {warning.created_on.year}-{warning.created_on.month}-{warning.created_on.day}\n"
-                message += f"    **By:** <@!{warning.created_by}>\n"
-                message += f"    **Reason:** {warning.reason}\n"
-                if warning.notes:
-                    message += f"    **Notes:** {warning.notes}\n\n"
-                count += 1
+        message = _get_warning_message(user.id)
 
         if ctx.message.author.id == user.id:
             await self.bot.send_message(user, content=message)
