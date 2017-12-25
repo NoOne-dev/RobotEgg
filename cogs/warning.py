@@ -171,17 +171,17 @@ class Warning:
         count = session.query(Warning_Table).filter_by(user_id=user.id).count()
 
         mod_message = f"<@!{mod.id}>, you have warned user <@!{user.id}>.\n\n"
-        mod_message += "**Reason:** {reason}\n"
+        mod_message += f"**Reason:** {reason}\n"
         if notes:
-            mod_message += "**Notes:** {notes}\n"
-        mod_message += "\nUser has **{count} {'warnings' if count > 1 else 'warning'}**."
+            mod_message += f"**Notes:** {notes}\n"
+        mod_message += f"\nUser has **{count} {'warnings' if count > 1 else 'warning'}**."
         await self.bot.say(mod_message)
 
 
         user_message = f"Hi {user.name},\n\nYou have received a warning in Eggserver Alpha.\n\n"
-        user_message += "**Reason:** {reason}.\n"
-        user_message += "You have **{count} {'warnings' if count > 1 else 'warning'}**.\n\n"
-        user_message += "If you have any further questions or concerns, please ask the mods."
+        user_message += f"**Reason:** {reason}.\n"
+        user_message += f"You have **{count} {'warnings' if count > 1 else 'warning'}**.\n\n"
+        user_message += f"If you have any further questions or concerns, please ask the mods."
         try:
             await self.bot.send_message(user, content=user_message)
         except:
@@ -257,7 +257,7 @@ class Warning:
         for row in session.query(Warning_Table.user_id).distinct().first():
             id_dict[count] = row
             warnings = session.query(Warning_Table).filter_by(user_id=row).count()
-            warnings = f"`{count}\t`<@!{row}>`\twarnings: {warnings}`\n"
+            warnings = f"`{count}`\t|\t<@!{row}>\t|\t`warnings: {warnings}`\n"
             if len(message) + len(warnings) < 2000:
                 message += warnings 
             else:
