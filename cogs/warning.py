@@ -77,7 +77,7 @@ class Warning:
         msg = await self.bot.say(reason_msg)
 
         def check(message):
-            if message.content == 'stop' or if message.content in premade:
+            if message.content == 'stop' or message.content in premade:
                 return True
             if len(message.content) < 5:
                 self.bot.say('Provide a valid reason.')
