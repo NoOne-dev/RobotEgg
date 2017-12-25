@@ -284,7 +284,7 @@ class Warning:
         message, ids = self._get_warning_message(user.id, ids=True)
         await self.bot.say(message)
         prompt_msg = await self.bot.say(content="Enter the ID of the warning to remove.")
-        self._deletion_queue(msg, delete=False)
+        self._deletion_queue(prompt_msg, delete=False)
 
         def check(message):
             """Check if the warning to remove is indeed valid"""
@@ -295,7 +295,8 @@ class Warning:
                 return False
 
         msg = await self.bot.wait_for_message(timeout=120.0, author=mod, check=check)
-        await self._deletion_queue(msg, delete=False)
+        if msg:
+            await self._deletion_queue(msg, delete=False)
 
         if not msg.content:
             return False
