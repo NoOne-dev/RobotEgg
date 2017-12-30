@@ -1,8 +1,10 @@
+import aiohttp
 import discord
+import pytesseract
+import os
 from discord.ext import commands
 from config import config
 from PIL import Image
-import pytesseract
 
 
 class OCR:
@@ -10,6 +12,50 @@ class OCR:
 
     def __init__(self, bot):
         self.bot = bot
+        self.image_mimes = ['image/png', 'image/pjpeg', 'image/jpeg', 'image/x-icon']
+        self.session = aiohttp.ClientSession()
+        self.image_counter = 0
+        
+
+    async def _is_image(self, url):
+        try:
+            with aiohttp.Timeout(5):
+                async with self.session.head(url) as resp:
+                    if resp.status == 200:
+                        mime = resp.headers.get('Content-type', '').lower()
+                        if any([mime == x for x in self.image_mimes]):
+                            return True
+                        else:
+                            return False
+        
+        except:
+            return False
+
+
+
+    async def _get_image(self, url):
+        try:
+            async with self.session.get(url) as resp:
+                if resp.status == 200:
+                    image = await resp.read()
+                    self.image_counter += 1
+                    filename = f"{self.image_counter}.png"
+
+                    with open(filename, "wb") as f:
+                        f.write(image)
+
+                    image_file = Image.open(filename)
+                    image_file = image_file.convert('1')
+                    image_file.save(filename)
+
+                    return filename
+
+            return False
+
+        except Exception as e:
+            print(e)
+            return False
+
 
 
     async def on_message(self, message):
@@ -18,6 +64,19 @@ class OCR:
 
         for attachment in message.attachments:
             print(attachment)
+            if attachment["size"] > 5000:
+                continue
+
+            if self._is_image(attachment["url"]):
+                filename = self._get_image(attachment["url"])
+                if not filename:
+                    return False
+
+                text = pytesseract.image_to_string(Image.open(filename))
+                os.remove(filename)
+                self.image_counter -= 1
+                print(text)
+
             
 
 # The setup fucntion below is neccesarry. Remember we give bot.add_cog() the name of the class in this case SimpleCog.
