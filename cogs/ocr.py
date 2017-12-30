@@ -3,7 +3,6 @@ from discord.ext import commands
 from config import config
 from PIL import Image
 import pytesseract
-import cv2 
 
 
 class OCR:
