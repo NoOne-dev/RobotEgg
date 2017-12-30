@@ -142,7 +142,7 @@ class Strike:
 
         def check(message):
             """Check if the reason is valid: either stop, premade or with a given length."""
-            if message.content == 'stop' or message.content in premade:
+            if message.content.lower() == 'stop' or message.content in premade:
                 return True
             if len(message.content) < 5:
                 self.bot.say('Provide a valid reason.')
@@ -173,11 +173,12 @@ class Strike:
         #If no reason was given then return false
         resp = user_msg.clean_content if user_msg else False
 
-        if user_msg.content in premade:
+        if resp in premade:
             resp = premade[user_msg.content]
 
-        if resp == 'stop':
-            return False
+        if resp:
+            if resp.lower() == 'stop':
+                return False
 
         return resp
 
@@ -203,15 +204,51 @@ class Strike:
 
         resp = user_msg.clean_content if user_msg else False
 
-        if resp == 'done':
-            return False
+        if resp:
+            if resp.lower() == 'done':
+                return False
 
         # Attach the link of any attachment to the note
         if user_msg.attachments:
             for attachment in user_msg.attachments:
-                resp += f' << attachment: {attachment["url"]} >>'
+                resp += f' <attachment: {attachment["url"]}>'
 
         return resp
+
+
+
+    async def _parse_user(self, ctx, author=False):
+        """Parse user from message"""
+        user = ctx.message.mentions
+        mentions = len(user)
+
+        if mentions > 1:
+            await self.bot.say(content=None, embed=create_error("- too many users specified"))
+            return False
+
+        elif mentions == 1:
+            return user[0]
+
+        elif mentions == 0 and len(ctx.message.content) > 0 and not author:
+            try:
+                members = self.bot.get_all_members(ctx.message.server)
+                query = ctx.message.content.lower()
+                for member in members:
+                    if query == member.id:
+                        return member
+                    elif query == f"{member.name}#{str(member.discriminator)}".lower():
+                        return member
+                    elif query == member.name.lower() or query == member.nick.lower():
+                        return member
+            except Exception as e:
+                await self.bot.say(content=None, embed=create_error("getting user"))
+                return False
+
+        elif mentions == 0 and author:
+            return ctx.message.author
+
+        await self.bot.say(content=None, embed=create_error("no user found in your message"))
+        return False
 
 
 
@@ -220,12 +257,10 @@ class Strike:
     @is_mod()
     async def strike(self, ctx):
         """Add a strike to the database"""
-        user = ctx.message.mentions
-        if len(user) != 1:
-            await self.bot.say(content=None, embed=create_error("- invalid user specified"))
+        user = await self._parse_user(ctx)
+        if not user:
             return False
 
-        user = user[0]
         mod = ctx.message.author
         await self._deletion_queue(ctx.message)
         date = datetime.datetime.now()
@@ -295,15 +330,12 @@ class Strike:
                 self.bot.say(content=None, embed=create_error("- enter a valid strike ID"))
                 return False
 
-        user = ctx.message.mentions
-        mod = ctx.message.author
-        await self._deletion_queue(ctx.message)
-
-        if len(user) != 1:
-            await self.bot.say(content=None, embed=create_error("- please specify exactly one user"))
+        user = await self._parse_user(ctx)
+        if not user:
             return False
 
-        user = user[0]
+        mod = ctx.message.author
+        await self._deletion_queue(ctx.message)
 
         # Get the strikes and the strike IDs for the specified user
         message, ids = self._get_strike_message(user.id, ids=True)
@@ -370,16 +402,9 @@ class Strike:
     @commands.command(pass_context=True, invoke_without_command=True)
     async def strikes(self, ctx):
         """Check strikes of user or self"""
-        user = ctx.message.mentions
-        if len(user) > 1:
-            await self.bot.say(content=None, embed=create_error("- too many users specified"))
+        user = await self._parse_user(ctx, author=True)
+        if not user:
             return False
-
-        if len(user) == 1:
-            user = user[0]
-
-        else:
-            user = ctx.message.author
 
         message = self._get_strike_message(user.id)
 
