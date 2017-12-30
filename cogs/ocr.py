@@ -19,7 +19,7 @@ class OCR:
 
     async def _is_image(self, url):
         try:
-            with aiohttp.Timeout(5):
+            with aiohttp.Timeout(4):
                 async with self.session.head(url) as resp:
                     if resp.status == 200:
                         mime = resp.headers.get('Content-type', '').lower()
@@ -27,28 +27,30 @@ class OCR:
                             return True
                         else:
                             return False
-        
-        except:
+
+        except Exception as e:
+            print(e)
             return False
 
 
 
     async def _get_image(self, url):
         try:
-            async with self.session.get(url) as resp:
-                if resp.status == 200:
-                    image = await resp.read()
-                    self.image_counter += 1
-                    filename = f"{self.image_counter}.png"
+            with aiohttp.Timeout(4):
+                async with self.session.get(url) as resp:
+                    if resp.status == 200:
+                        image = await resp.read()
+                        filename = f"{self.image_counter}.png"
+                        self.image_counter += 1
 
-                    with open(filename, "wb") as f:
-                        f.write(image)
+                        with open(filename, "wb") as f:
+                            f.write(image)
 
-                    image_file = Image.open(filename)
-                    image_file = image_file.convert('1')
-                    image_file.save(filename)
+                        image_file = Image.open(filename)
+                        image_file = image_file.convert('1')
+                        image_file.save(filename)
 
-                    return filename
+                        return filename
 
             return False
 
@@ -67,8 +69,8 @@ class OCR:
             if attachment["size"] > 5000:
                 continue
 
-            if self._is_image(attachment["url"]):
-                filename = self._get_image(attachment["url"])
+            if await self._is_image(attachment["url"]):
+                filename = await self._get_image(attachment["url"])
                 if not filename:
                     return False
 
