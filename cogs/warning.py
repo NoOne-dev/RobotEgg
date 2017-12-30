@@ -231,7 +231,7 @@ class Strike:
 
         elif mentions == 0 and len(ctx.message.content) > 0 and not author:
             try:
-                members = self.bot.get_all_members(ctx.message.server)
+                members = ctx.message.server.members
                 query = ctx.message.content.lower()
                 for member in members:
                     if query == member.id:
@@ -241,7 +241,7 @@ class Strike:
                     elif query == member.name.lower() or query == member.nick.lower():
                         return member
             except Exception as e:
-                await self.bot.say(content=None, embed=create_error("getting user"))
+                await self.bot.say(content=None, embed=create_error(f"getting user: {e}"))
                 return False
 
         elif mentions == 0 and author:
