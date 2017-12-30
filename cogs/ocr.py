@@ -71,7 +71,7 @@ class OCR:
 
             if await self._is_image(attachment["url"]):
                 try:
-                    filename = await self._get_image(attachment["url"], attachment["name"])
+                    filename = await self._get_image(attachment["url"], attachment["filename"])
                     if not filename:
                         return False
 
@@ -83,6 +83,7 @@ class OCR:
                     os.remove(filename)
                     self.image_counter -= 1
                     print(f"text: {text}")
+                
                 except Exception as e:
                     print(f"Error: {e}")
                     return False
