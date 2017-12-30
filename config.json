@@ -32,7 +32,8 @@
     "cogs.react",
     "cogs.admin",
     "cogs.birthday",
-    "cogs.warning"
+    "cogs.warning",
+    "cogs.ocr"
   ],
 
   "streamers": {
