@@ -229,11 +229,13 @@ class Strike:
         elif mentions == 1:
             return user[0]
 
-        elif mentions == 0 and len(ctx.message.content) > 0 and not author:
+        elif mentions == 0 and not author:
             try:
                 members = ctx.message.server.members
-                query = ctx.message.content.lower()
-                print(query)
+                query = ' '.join(ctx.message.content.lower().split(' ')[1:]) #get command outta there
+                if not query:
+                    return False
+
                 for member in members:
                     if query == member.id:
                         return member
@@ -242,8 +244,8 @@ class Strike:
                     elif query == member.name.lower():
                         return member
                     elif member.nick:
-                         if query == member.nick.lower():
-                             return member
+                        if query == member.nick.lower():
+                            return member
             except Exception as e:
                 await self.bot.say(content=None, embed=create_error(f"getting user: {e}"))
                 return False
