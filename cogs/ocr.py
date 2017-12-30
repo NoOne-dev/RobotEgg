@@ -50,7 +50,6 @@ class OCR:
                         image = image.convert('1')
                         image.save(filename)
                         image.close()
-                        print(f"saving as {filename}")
                         return filename
 
             return False
@@ -79,12 +78,12 @@ class OCR:
                     image = Image.open(filename)
                     text = pytesseract.image_to_string(image)
                     image.close()
-                    print("removing image")
                     os.remove(filename)
                     self.image_counter -= 1
                     print(f"text: {text}")
                 
                 except Exception as e:
+                    os.remove(filename)
                     print(f"Error: {e}")
                     return False
 
