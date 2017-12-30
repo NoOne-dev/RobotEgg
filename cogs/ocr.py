@@ -29,7 +29,7 @@ class OCR:
                             return False
 
         except Exception as e:
-            print(e)
+            print(f"Error checking for image type: {e}")
             return False
 
 
@@ -56,7 +56,7 @@ class OCR:
             return False
 
         except Exception as e:
-            print(e)
+            print(f"Error getting image: {e}")
             return False
 
 
@@ -84,7 +84,7 @@ class OCR:
                     self.image_counter -= 1
                     print(f"text: {text}")
                 except Exception as e:
-                    print(e)
+                    print(f"Error: {e}")
                     return False
 
             
