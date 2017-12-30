@@ -50,7 +50,7 @@ class OCR:
                         image = image.convert('1')
                         image.save(filename)
                         image.close()
-
+                        print(f"saving as {filename}")
                         return filename
 
             return False
@@ -66,7 +66,6 @@ class OCR:
             return
 
         for attachment in message.attachments:
-            print(attachment)
             if attachment["size"] > 5000:
                 continue
 
@@ -75,13 +74,15 @@ class OCR:
                     filename = await self._get_image(attachment["url"], attachment["name"])
                     if not filename:
                         return False
-                    
+
+                    print ('opening image')
                     image = Image.open(filename)
                     text = pytesseract.image_to_string(image)
                     image.close()
+                    print("removing image")
                     os.remove(filename)
                     self.image_counter -= 1
-                    print(text)
+                    print(f"text: {text}")
                 except Exception as e:
                     print(e)
                     return False
