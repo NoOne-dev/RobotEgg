@@ -235,7 +235,6 @@ class Strike:
                 query = ctx.message.content.lower()
                 print(query)
                 for member in members:
-                    print(member.id)
                     if query == member.id:
                         return member
                     elif query == f"{member.name}#{str(member.discriminator)}".lower():
