@@ -34,21 +34,22 @@ class OCR:
 
 
 
-    async def _get_image(self, url):
+    async def _get_image(self, url, image_name):
         try:
             with aiohttp.Timeout(4):
                 async with self.session.get(url) as resp:
                     if resp.status == 200:
                         image = await resp.read()
-                        filename = f"{self.image_counter}.png"
+                        filename = f"{self.image_counter}_{image_name}"
                         self.image_counter += 1
 
                         with open(filename, "wb") as f:
                             f.write(image)
 
-                        image_file = Image.open(filename)
-                        image_file = image_file.convert('1')
-                        image_file.save(filename)
+                        image = Image.open(filename)
+                        image = image.convert('1')
+                        image.save(filename)
+                        image.close()
 
                         return filename
 
@@ -70,14 +71,20 @@ class OCR:
                 continue
 
             if await self._is_image(attachment["url"]):
-                filename = await self._get_image(attachment["url"])
-                if not filename:
+                try:
+                    filename = await self._get_image(attachment["url"], attachment["name"])
+                    if not filename:
+                        return False
+                    
+                    image = Image.open(filename)
+                    text = pytesseract.image_to_string(image)
+                    image.close()
+                    os.remove(filename)
+                    self.image_counter -= 1
+                    print(text)
+                except Exception as e:
+                    print(e)
                     return False
-
-                text = pytesseract.image_to_string(Image.open(filename))
-                os.remove(filename)
-                self.image_counter -= 1
-                print(text)
 
             
 
