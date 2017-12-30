@@ -238,8 +238,11 @@ class Strike:
                         return member
                     elif query == f"{member.name}#{str(member.discriminator)}".lower():
                         return member
-                    elif query == member.name.lower() or query == member.nick.lower():
+                    elif query == member.name.lower():
                         return member
+                    elif member.nick:
+                         if query == member.nick.lower():
+                             return member
             except Exception as e:
                 await self.bot.say(content=None, embed=create_error(f"getting user: {e}"))
                 return False
