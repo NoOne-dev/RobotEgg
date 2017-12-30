@@ -1,7 +1,7 @@
 import discord
 from discord.ext import commands
 from config import config
-import pillow
+from PIL import Image
 import pytesseract
 import cv2 
 
