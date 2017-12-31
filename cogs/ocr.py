@@ -41,6 +41,7 @@ class OCR:
                               url=url)
                 text = await fetch(url, params=params)
                 text = json.loads(text[0])
+                text = text["ParsedResults"]
                 
                 if text["FileParseExitCode"] == 1:
                     return text["ParsedText"]
@@ -50,7 +51,7 @@ class OCR:
             return False
 
         except Exception as e:
-            print(f"Error getting image: {e}")
+            print(f"Error getting OCR: {e}")
             return False
 
 
