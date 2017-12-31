@@ -42,9 +42,10 @@ class OCR:
                 text = await fetch(api_url, params=params)
                 text = json.loads(text)
 
+                print(f"{api_url}?{params['apikey']}&{params['url']}")
+
                 if text["ParsedResults"]:
-                    text = text["ParsedResults"]
-                    print(text)
+                    text = text["ParsedResults"][0]
                 else:
                     return False
                 
