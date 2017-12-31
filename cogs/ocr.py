@@ -72,7 +72,7 @@ class OCR:
             if await self._is_image(attachment["url"]):
                 text = await self._get_ocr(attachment["url"])
                 if text and "@mod" in text or "iviod" in text or "ivicd" in text or "mcd" in text:
-                    await self.bot.send_message(message.channel, f"@'ing them by image is a low T move, <@!{message.author.id}> <:BeAdvised:346269002902929419>")
+                    await self.bot.send_message(message.channel, f"@'ing them by image is a low t move, <@!{message.author.id}> <:BeAdvised:346269002902929419>")
 
             
 
