@@ -39,10 +39,12 @@ class OCR:
                 url = f"https://api.ocr.space/parse/imageurl"
                 params = dict(apikey=self.API_KEY,
                               url=url)
+                print(url)
                 text = await fetch(url, params=params)
                 text = json.loads(text)
-                print(text)
-                text = text["ParsedResults"]
+
+                if text["ParsedResults"]:
+                    text = text["ParsedResults"]
                 
                 if text["FileParseExitCode"] == 1:
                     return text["ParsedText"]
@@ -67,8 +69,7 @@ class OCR:
 
             if await self._is_image(attachment["url"]):
                 text = await self._get_ocr(attachment["url"])
-                print(text)
-                if "@mod" in text.lower():
+                if text and "@mod" in text.lower():
                     emoji = discord.utils.get(self.bot.get_all_emojis(), name='BeAdvised')
                     await self.bot.say(message.channel, emoji)
 
