@@ -40,8 +40,8 @@ class OCR:
                 params = dict(apikey=self.API_KEY,
                               url=url)
                 text = await fetch(url, params=params)
-                text = json.loads(text[0])
-                text = text["ParsedResults"]
+                text = json.loads(text)
+                text = text[0]["ParsedResults"]
                 
                 if text["FileParseExitCode"] == 1:
                     return text["ParsedText"]
