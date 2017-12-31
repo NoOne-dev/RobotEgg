@@ -13,7 +13,7 @@ class OCR:
         self.bot = bot
         self.image_mimes = ['image/png', 'image/pjpeg', 'image/jpeg', 'image/x-icon']
         self.session = aiohttp.ClientSession()
-        self.API_KEY = "9535cd20c288957"
+        self.ocr_token = config["tokens"]["ocr"]
         
 
     async def _is_image(self, url):
@@ -36,17 +36,20 @@ class OCR:
     async def _get_ocr(self, url):
         try:
             with aiohttp.Timeout(5):
-                api_url = f"https://api.ocr.space/parse/imageurl"
-                params = dict(apikey=self.API_KEY,
+                api_url = "https://api.ocr.space/parse/imageurl"
+                params = dict(apikey=self.ocr_token,
                               url=url)
-                print(url)
                 text = await fetch(api_url, params=params)
                 text = json.loads(text)
 
                 if text["ParsedResults"]:
                     text = text["ParsedResults"]
+                    print(text)
+                else:
+                    return False
                 
                 if text["FileParseExitCode"] == 1:
+                    print(text["ParsedText"])
                     return text["ParsedText"]
                 else:
                     print(text["FileParseExitCode"])
