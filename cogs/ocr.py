@@ -42,8 +42,6 @@ class OCR:
                 text = await fetch(api_url, params=params)
                 text = json.loads(text)
 
-                print(f"{api_url}?{params['apikey']}&{params['url']}")
-
                 if text["ParsedResults"]:
                     text = text["ParsedResults"][0]
                 else:
@@ -75,7 +73,7 @@ class OCR:
                 text = await self._get_ocr(attachment["url"])
                 if text and "@mod" in text.lower():
                     emoji = discord.utils.get(self.bot.get_all_emojis(), name='BeAdvised')
-                    await self.bot.say(message.channel, emoji)
+                    await self.bot.send_message(message.channel, "@'ing them by image is a low T move, <@!{message.author.id}> <:BeAdvised:346269002902929419>")
 
             
 
