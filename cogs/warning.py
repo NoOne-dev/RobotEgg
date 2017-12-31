@@ -211,7 +211,7 @@ class Strike:
         # Attach the link of any attachment to the note
         if user_msg.attachments:
             for attachment in user_msg.attachments:
-                resp += f' <attachment: {attachment["url"]}>'
+                resp += f' [ attachment: {attachment["url"]} ]'
 
         return resp
 
