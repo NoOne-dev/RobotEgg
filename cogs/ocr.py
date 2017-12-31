@@ -1,10 +1,8 @@
 import aiohttp
 import discord
-import pytesseract
-import os
+from cogs.utils.fetch import fetch
 from discord.ext import commands
 from config import config
-from PIL import Image
 
 
 class OCR:
@@ -14,7 +12,7 @@ class OCR:
         self.bot = bot
         self.image_mimes = ['image/png', 'image/pjpeg', 'image/jpeg', 'image/x-icon']
         self.session = aiohttp.ClientSession()
-        self.image_counter = 0
+        self.API_KEY = "9535cd20c288957"
         
 
     async def _is_image(self, url):
@@ -34,23 +32,17 @@ class OCR:
 
 
 
-    async def _get_image(self, url, image_name):
+    async def _get_ocr(self, url):
         try:
-            with aiohttp.Timeout(4):
-                async with self.session.get(url) as resp:
-                    if resp.status == 200:
-                        image = await resp.read()
-                        filename = f"{self.image_counter}_{image_name}"
-                        self.image_counter += 1
-
-                        with open(filename, "wb") as f:
-                            f.write(image)
-
-                        image = Image.open(filename)
-                        image = image.convert('1')
-                        image.save(filename)
-                        image.close()
-                        return filename
+            with aiohttp.Timeout(5):
+                url = f"https://api.ocr.space/parse/imageurl"
+                params = dict(apikey=self.API_KEY,
+                              url=url)
+                text = await fetch(url, params=params)
+                if text["FileParseExitCode"] == 1:
+                    return text["ParsedText"]
+                else:
+                    print(text["FileParseExitCode"])
 
             return False
 
@@ -69,23 +61,11 @@ class OCR:
                 continue
 
             if await self._is_image(attachment["url"]):
-                try:
-                    filename = await self._get_image(attachment["url"], attachment["filename"])
-                    if not filename:
-                        return False
-
-                    print ('opening image')
-                    image = Image.open(filename)
-                    text = pytesseract.image_to_string(image)
-                    image.close()
-                    os.remove(filename)
-                    self.image_counter -= 1
-                    print(f"text: {text}")
-                
-                except Exception as e:
-                    os.remove(filename)
-                    print(f"Error: {e}")
-                    return False
+                text = self._get_ocr(attachment["url"])
+                print(text)
+                if "@mod" in text.lower():
+                    emoji = discord.utils.get(self.bot.get_all_emojis(), name='BeAdvised')
+                    await self.bot.say(message.channel, emoji)
 
             
 
