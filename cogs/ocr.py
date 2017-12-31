@@ -36,11 +36,11 @@ class OCR:
     async def _get_ocr(self, url):
         try:
             with aiohttp.Timeout(5):
-                url = f"https://api.ocr.space/parse/imageurl"
+                api_url = f"https://api.ocr.space/parse/imageurl"
                 params = dict(apikey=self.API_KEY,
                               url=url)
                 print(url)
-                text = await fetch(url, params=params)
+                text = await fetch(api_url, params=params)
                 text = json.loads(text)
 
                 if text["ParsedResults"]:
