@@ -61,7 +61,7 @@ class OCR:
                 continue
 
             if await self._is_image(attachment["url"]):
-                text = self._get_ocr(attachment["url"])
+                text = await self._get_ocr(attachment["url"])
                 print(text)
                 if "@mod" in text.lower():
                     emoji = discord.utils.get(self.bot.get_all_emojis(), name='BeAdvised')
