@@ -199,7 +199,7 @@ class Strike:
         await self._deletion_queue(msg)
 
         user_msg = await self.bot.wait_for_message(timeout=120.0, author=mod, check=check)
-        if user_msg:
+        if user_msg and not user_msg.attachments:
             await self._deletion_queue(user_msg)
 
         resp = user_msg.clean_content if user_msg else False
