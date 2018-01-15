@@ -407,7 +407,7 @@ class Strike:
                 message = strikes
             count += 1
 
-        message += "`\n'-------------------------------------------------------------'`"
+        message += "\n`'-------------------------------------------------------------'`"
         await self.bot.say(message)
 
         # If a mod enters a number give more info about the strikes of that user
