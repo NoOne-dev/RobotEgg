@@ -69,20 +69,19 @@ class Strike:
     def _get_strike_message(self, user_id, ids=False):
         """Generate message showing strikes"""
         strikes = session.query(Strike_Table).filter_by(user_id=user_id).all()
-        id_list = []
-        
+        id_list = {}
+
         message = f"**Strikes for <@!{user_id}>**\n"
-        
+
         if len(strikes) == 0:
             message = "There are no strikes for this user."
         else:
             count = 1
             for strike in strikes:
                 if ids:
-                    id_list.append(strike.index)
-                    message += f"\n**Strike ID {strike.index}:**\n"
-                else:
-                    message += f"\n**Strike {count}:** \n"
+                    id_list[count] = strike.index
+
+                message += f"\n**Strike {count}:** \n"
                 message += f"    _Date:_ {strike.created_on.year}-{strike.created_on.month}-{strike.created_on.day}\n"
                 message += f"    _By:_ <@!{strike.created_by}>\n"
                 message += f"    _Reason:_ {strike.reason}\n"
@@ -353,7 +352,7 @@ class Strike:
 
         strike_msg = await self.bot.say(message)
         await self._deletion_queue(strike_msg)
-        prompt_msg = await self.bot.say(content="Enter the ID of the strike to remove.")
+        prompt_msg = await self.bot.say(content="Strike to remove:")
         await self._deletion_queue(prompt_msg)
 
         user_msg = await self.bot.wait_for_message(timeout=120.0, author=mod, check=check)
@@ -365,11 +364,11 @@ class Strike:
 
         removal_message = ''
         try:
-            index = int(user_msg.content)
+            index = ids[int(user_msg.content)]
             record = session.query(Strike_Table).get(index)
             session.delete(record)
             session.commit()
-            removal_message += f"<@!{mod.id}> removed strike from <@!{user.id}> with ID {index}.\n"
+            removal_message += f"<@!{mod.id}> removed strike from <@!{user.id}>.\n"
             removal_message += f"Removed item: {record.reason}"
             await self.bot.say(removal_message)
         except Exception as e:
@@ -389,11 +388,21 @@ class Strike:
         message += '`| #   | Amount  | User                                        |`\n'
         id_dict = {}
         count = 1
+        members = ctx.message.server.members
         for row in session.query(Strike_Table.user_id).distinct():
-            row = row[0]
-            id_dict[str(count)] = row
+            row = row[0] #UID
+            id_dict[str(count)] = row #index to ID
             strikes = session.query(Strike_Table).filter_by(user_id=row).count()
             strikes = f"`| {count}{((4-len(str(count)))*' ')}| {strikes}{((8-len(str(strikes)))*' ')}|`  <@!{row}>\n"
+            
+            found = False
+            for member in members:
+                if row == member.id:
+                    found = True
+            if not found:
+                strikes += " [📤]"
+            
+
             if len(message) + len(strikes) < 1000:
                 message += strikes
             else:
