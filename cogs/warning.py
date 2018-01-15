@@ -387,20 +387,17 @@ class Strike:
         members = ctx.message.server.members
 
         message = '`,-------------------------------------------------------------.`\n'
-        message += '`| #   | Amount  | User                                        |`\n'
+        message += '`| #   | Amount  | User                                        |`'
         id_dict = {}
         count = 1
         for row in session.query(Strike_Table.user_id).distinct():
-            row = row[0] #UID
-            id_dict[str(count)] = row #index to ID
+            uid = row[0] #UID
+            id_dict[str(count)] = uid #index to ID
             strikes = session.query(Strike_Table).filter_by(user_id=row).count()
-            strikes = f"`| {count}{((4-len(str(count)))*' ')}| {strikes}{((8-len(str(strikes)))*' ')}|`  <@!{row}>\n"
+            strikes = f"`\n| {count}{((4-len(str(count)))*' ')}| {strikes}{((8-len(str(strikes)))*' ')}|`  <@!{uid}>"
 
-            found = False
-            for member in members:
-                if row == member.id:
-                    found = True
-            if not found:
+
+            if not any(member.id == uid for member in members):
                 strikes += " [📤]"
 
             if len(message) + len(strikes) < 1000:
@@ -410,7 +407,7 @@ class Strike:
                 message = strikes
             count += 1
 
-        message += "`'-------------------------------------------------------------'`"
+        message += "`\n'-------------------------------------------------------------'`"
         await self.bot.say(message)
 
         # If a mod enters a number give more info about the strikes of that user
