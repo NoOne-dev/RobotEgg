@@ -398,7 +398,7 @@ class Strike:
 
 
             if not any(member.id == uid for member in members):
-                strikes += " [📤]"
+                strikes += " - 💀"
 
             if len(message) + len(strikes) < 1000:
                 message += strikes
