@@ -379,29 +379,29 @@ class Strike:
 
 
 
-    @commands.command(invoke_without_command=True)
+    @commands.command(pass_context=True, invoke_without_command=True)
     @channels_allowed(["mod-commands"])
     @is_mod()
-    async def table(self):
+    async def table(self, ctx):
         """Generate complete list of strikes"""
+        members = ctx.message.server.members
+
         message = '`,-------------------------------------------------------------.`\n'
         message += '`| #   | Amount  | User                                        |`\n'
         id_dict = {}
         count = 1
-        members = ctx.message.server.members
         for row in session.query(Strike_Table.user_id).distinct():
             row = row[0] #UID
             id_dict[str(count)] = row #index to ID
             strikes = session.query(Strike_Table).filter_by(user_id=row).count()
             strikes = f"`| {count}{((4-len(str(count)))*' ')}| {strikes}{((8-len(str(strikes)))*' ')}|`  <@!{row}>\n"
-            
+
             found = False
             for member in members:
                 if row == member.id:
                     found = True
             if not found:
                 strikes += " [📤]"
-            
 
             if len(message) + len(strikes) < 1000:
                 message += strikes
