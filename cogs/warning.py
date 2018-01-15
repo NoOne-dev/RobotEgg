@@ -115,8 +115,8 @@ class Strike:
 
 
 
-    async def _check_user(self, user, mod):
-        """Check if the correct user is being strikeed"""
+    async def _confirm_action(self, confirmation, mod):
+        """Have mod confirm their action"""
         def check(reaction, user):
             """Check if the reaction is by the bot and then if it's an OK or a not OK"""
             if user.id == msg.author.id:
@@ -124,7 +124,7 @@ class Strike:
             else:
                 return user.id == mod.id and (str(reaction.emoji) == '✅' or str(reaction.emoji) == '🛑')
 
-        msg = await self.bot.say(f"Strike: <@!{user.id}>. Is this correct?")
+        msg = await self.bot.say(confirmation)
 
         await self.bot.add_reaction(msg, '✅')
         await self.bot.add_reaction(msg, '🛑')
@@ -263,6 +263,11 @@ class Strike:
     @is_mod()
     async def strike(self, ctx):
         """Add a strike to the database"""
+        async def cancel_action():
+            await self.bot.say("Cancelled.")
+            await self._deletion_queue(None, delete=True)
+            return False
+
         user = await self._parse_user(ctx)
         if not user:
             return False
@@ -271,17 +276,17 @@ class Strike:
         await self._deletion_queue(ctx.message)
         date = datetime.datetime.now()
 
-        if await self._check_user(user, mod): #Correct user confirmation
-            reason = await self._get_reason(mod) #Get a reason
-            if not reason:
-                await self.bot.say("Cancelled.")
-                await self._deletion_queue(None, delete=True)
-                return False
-            notes = await self._get_notes(mod) #Get any further notes
-        else:
-            await self.bot.say("Cancelled.")
-            await self._deletion_queue(None, delete=True)
-            return False
+        if not await self._confirm_action(f"Strike: <@!{user.id}>. Is this correct?", mod):
+            return await cancel_action()
+
+        reason = await self._get_reason(mod) #Get a reason
+        if not reason:
+            return await cancel_action()
+
+        notes = await self._get_notes(mod) #Get any further notes
+
+        if not await self._confirm_action(f"Striking <@!{user.id}> for {reason}. Is this correct?", mod):
+            return await cancel_action()
 
         notes = '' if not notes else notes
 
