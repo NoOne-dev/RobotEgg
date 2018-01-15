@@ -394,7 +394,7 @@ class Strike:
             uid = row[0] #UID
             id_dict[str(count)] = uid #index to ID
             strikes = session.query(Strike_Table).filter_by(user_id=row).count()
-            strikes = f"`\n| {count}{((4-len(str(count)))*' ')}| {strikes}{((8-len(str(strikes)))*' ')}|`  <@!{uid}>"
+            strikes = f"\n`| {count}{((4-len(str(count)))*' ')}| {strikes}{((8-len(str(strikes)))*' ')}|`  <@!{uid}>"
 
 
             if not any(member.id == uid for member in members):
