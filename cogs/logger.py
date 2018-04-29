@@ -32,7 +32,7 @@ class Logger:
         emb.set_author(name=name, icon_url=author.avatar_url)
         
         if channel:
-            emb.set_footer(text=f"\nin {channel}")
+            emb.set_footer(text=f"\nin #{channel}")
     
         return emb
 
@@ -61,7 +61,9 @@ class Logger:
             return True
 
         if self.check(before.author) and before.content != after.content:
-            content = f"```{before.content}```\n```{after.content}```"
+            before = before.clean_content.replace("```", "<code>")
+            after = after.clean_content.replace("```", "<code>")
+            content = f"```{before}```\n```{after}```"
 
             emb = await self.create_embed("✏️ Message edited", content, 
                                         before.channel.name, 0x37a4d3, before.author)
