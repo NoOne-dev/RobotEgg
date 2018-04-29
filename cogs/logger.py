@@ -14,6 +14,10 @@ class Logger:
         self.bot = bot
         self.logging_channel = bot.get_channel(config["channels"]["logging"])
 
+    
+    def check(author):
+        return author.id != self.bot.user.id
+
 
     async def on_ready(self):
         if not self.logging_channel:
@@ -33,28 +37,40 @@ class Logger:
     async def on_message_delete(self, message):
         """Fires when somebody deletes a message"""
 
-        emb = await self.create_embed("🗑️ Message deleted", message.content, 
-                                       0xd33751, message.author)
+        if check(message.author):
+            emb = await self.create_embed("🗑️ Message deleted", message.content, 
+                                        0xd33751, message.author)
 
-        await self.bot.send_message(self.logging_channel, embed=emb)
+            await self.bot.send_message(self.logging_channel, embed=emb)
 
     
     async def on_message_edit(self, before, after):
         """Fires when somebody edits a message"""
 
-        content = f"**Before**\n```{before.content}```\n\n**After**\n```{after.content}```"
+        if not before.embeds and after.embeds:
+            return false
 
-        emb = await self.create_embed("✏️ Message edited", content, 
-                                       0x37a4d3, before.author)
+        if not before.pinned and after.pinned:
+            emb = await self.create_embed("📌 Message pinned", before.content, 
+                                        0x37a4d3, before.author)
 
-        await self.bot.send_message(self.logging_channel, embed=emb)
+            await self.bot.send_message(self.logging_channel, embed=emb)
+            return True
+
+        if check(before.author) and before.content != after.content:
+            content = f"**Before**\n```{before.content}```\n\n**After**\n```{after.content}```"
+
+            emb = await self.create_embed("✏️ Message edited", content, 
+                                        0x37a4d3, before.author)
+
+            await self.bot.send_message(self.logging_channel, embed=emb)
 
     
     async def on_member_join(self, member):
         """Fires when somebody joins"""
 
         emb = await self.create_embed("✨ Member joined", None, 
-                                       0x2acc4d, member)
+                                        0x2acc4d, member)
 
         await self.bot.send_message(self.logging_channel, embed=emb)
 
@@ -63,7 +79,7 @@ class Logger:
         """Fires when somebody joins"""
 
         emb = await self.create_embed("😔 Member left", None, 
-                                       0x6b8ea3, member)
+                                        0x6b8ea3, member)
 
         await self.bot.send_message(self.logging_channel, embed=emb)
 
