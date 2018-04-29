@@ -11,7 +11,6 @@ class Logger:
     """Log events"""
 
     def __init__(self, bot):
-        await bot.wait_until_ready()
         self.bot = bot
         self.logging_channel = bot.get_channel(config["channels"]["logging"])
 
