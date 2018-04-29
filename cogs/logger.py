@@ -42,7 +42,7 @@ class Logger:
                     self.files[message.id] = att["filename"]
             
             while self.filecounter >= 20 or self.sizecounter >= 100000000:
-                os.remove(list(self.files)[0])
+                os.remove(self.files.pop(list(self.files.keys())[0], None))
                 
 
 
@@ -69,7 +69,8 @@ class Logger:
             await self.bot.send_message(self.logging_channel, embed=emb)
 
             if message.id in self.files:
-                 send_file(self.logging_channel, self.files["id"])
+                self.bot.send_file(self.logging_channel, self.files["id"])
+                os.remove(self.files.pop(message.id, None)
 
     
     async def on_message_edit(self, before, after):
