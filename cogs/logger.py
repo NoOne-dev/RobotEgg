@@ -37,11 +37,11 @@ class Logger:
                 data = requests.get(att["url"]).content
                 with open(att["filename"], 'wb') as handler:
                     handler.write(data)
-                    sizecounter += att["size"]
-                    filecounter += 1
-                    files[message.id] = att["filename"]
+                    self.sizecounter += att["size"]
+                    self.filecounter += 1
+                    self.files[message.id] = att["filename"]
             
-            while filecounter >= 20 or sizecounter >= 100000000:
+            while self.filecounter >= 20 or self.sizecounter >= 100000000:
                 os.remove(list(self.files)[0])
                 
 
