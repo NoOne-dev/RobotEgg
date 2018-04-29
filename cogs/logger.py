@@ -70,7 +70,7 @@ class Logger:
 
             if message.id in self.files:
                 self.bot.send_file(self.logging_channel, self.files["id"])
-                os.remove(self.files.pop(message.id, None)
+                os.remove(self.files.pop(message.id, None))
 
     
     async def on_message_edit(self, before, after):
