@@ -61,9 +61,9 @@ class Logger:
             return True
 
         if self.check(before.author) and before.content != after.content:
-            before = before.clean_content.replace("```", "<code>")
-            after = after.clean_content.replace("```", "<code>")
-            content = f"```{before}```\n```{after}```"
+            before_clean = before.clean_content.replace("```", "<code>")
+            after_clean = after.clean_content.replace("```", "<code>")
+            content = f"```{before_clean}```\n```{after_clean}```"
 
             emb = await self.create_embed("✏️ Message edited", content, 
                                         before.channel.name, 0x37a4d3, before.author)
