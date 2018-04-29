@@ -55,8 +55,6 @@ class Admin:
         """lists active extensions."""
         active_ext = ""
         try:
-            for extension in tuple(self.bot.extensions):
-                active_ext += f"{extension}\n"
             for cog in tuple(self.bot.cogs):
                 active_ext += f"{cog}\n"
         except:

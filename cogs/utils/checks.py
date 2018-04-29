@@ -4,7 +4,7 @@ from discord.ext import commands
 
 def channels_allowed(channels):
     def predicate(ctx):
-        allowed = [config["channels"]["bot-commands"], config["channels"]["testing"]]
+        allowed = [config["channels"]["bot-commands"], config["channels"]["testing"], config["channels"]["mod-commands"]]
         try:
             for channel in channels:
                 allowed.append(config["channels"][channel])

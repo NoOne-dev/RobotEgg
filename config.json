@@ -15,7 +15,8 @@
     "mod-chat": "346251456711622659",
     "bot-commands": "346601597335240704",
     "testing": "262325593163563008",
-    "mod-commands": "394502898274271232"
+    "mod-commands": "394502898274271232",
+    "logging": "380686734381547521"
   },
 
   "roles": {
@@ -24,8 +25,11 @@
     "birthday": "birthday-boi"
   },
 
+  "inactive_extensions": [
+    "cogs.voice_toggle"
+  ],
+
   "active_extensions": [
-    "cogs.voice_toggle",
     "cogs.status",
     "cogs.joke",
     "cogs.bible",
@@ -33,8 +37,9 @@
     "cogs.react",
     "cogs.admin",
     "cogs.birthday",
-    "cogs.warning",
-    "cogs.ocr"
+    "cogs.strike",
+    "cogs.ocr",
+    "cogs.logger"
   ],
 
   "streamers": {
