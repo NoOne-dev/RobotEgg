@@ -15,7 +15,7 @@ class Logger:
         self.logging_channel = bot.get_channel(config["channels"]["logging"])
 
     
-    def check(author):
+    def check(self, author):
         return author.id != self.bot.user.id
 
 
@@ -37,7 +37,7 @@ class Logger:
     async def on_message_delete(self, message):
         """Fires when somebody deletes a message"""
 
-        if check(message.author):
+        if self.check(message.author):
             emb = await self.create_embed("🗑️ Message deleted", message.content, 
                                         0xd33751, message.author)
 
@@ -57,7 +57,7 @@ class Logger:
             await self.bot.send_message(self.logging_channel, embed=emb)
             return True
 
-        if check(before.author) and before.content != after.content:
+        if self.check(before.author) and before.content != after.content:
             content = f"**Before**\n```{before.content}```\n\n**After**\n```{after.content}```"
 
             emb = await self.create_embed("✏️ Message edited", content, 
