@@ -47,7 +47,7 @@ class Logger:
     async def on_member_join(self, member):
         """Fires when somebody joins"""
 
-        emb = await self.create_embed("✨ Member joined", content=None, 
+        emb = await self.create_embed("✨ Member joined", None, 
                                        0x2acc4d, member)
 
         await self.bot.send_message(self.logging_channel, embed=emb)
