@@ -69,7 +69,7 @@ class Logger:
             await self.bot.send_message(self.logging_channel, embed=emb)
 
             if message.id in self.files:
-                self.bot.send_file(self.logging_channel, self.files[message.id])
+                await self.bot.send_file(self.logging_channel, self.files[message.id])
                 os.remove(self.files.pop(message.id, None))
 
     
