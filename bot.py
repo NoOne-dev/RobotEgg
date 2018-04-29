@@ -34,7 +34,6 @@ if __name__ == '__main__':
     """Run the bot"""
     for extension in extensions:
         try:
-            await bot.wait_until_ready()
             bot.load_extension(extension)
         except Exception as e:
             print(f"Failed to load extension {extension}: {e}")

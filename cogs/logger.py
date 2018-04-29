@@ -15,6 +15,11 @@ class Logger:
         self.logging_channel = bot.get_channel(config["channels"]["logging"])
 
 
+    async def on_ready(self):
+        if not self.logging_channel:
+            self.logging_channel = self.bot.get_channel(config["channels"]["logging"])
+
+
     async def create_embed(self, title, content, color, author):
         name = author.nick if author.nick else author.name
         
