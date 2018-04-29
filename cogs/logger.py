@@ -2,7 +2,9 @@ import discord
 import requests
 import os
 from discord.ext import commands
+from collections import OrderedDict
 from config import config
+from cogs.utils.checks import is_owner
 
 """
 Log message deletes, edits, member joins/leaves...
@@ -15,12 +17,11 @@ class Logger:
     def __init__(self, bot):
         self.bot = bot
         self.logging_channel = bot.get_channel(config["channels"]["logging"])
-        self.filecounter = 0
-        self.files = {}
+        self.files = OrderedDict()
 
     
     def check(self, author):
-        return author.id != self.bot.user.id
+        return author.id != self.bot.user.id && author.id != "172002275412279296" #tatsumaki
 
 
     async def on_ready(self):
@@ -29,20 +30,24 @@ class Logger:
 
     
     async def on_message(self, message):
-        if len(message.attachments) != 0:
+        if len(message.attachments) != 0 and self.check(message.author):
             for att in message.attachments:
                 if att["size"] >= 5000000:
                     continue
                 data = requests.get(att["url"]).content
-                with open(att["filename"], 'wb') as handler:
-                    handler.write(data)
-                    self.filecounter += 1
-                    self.files[message.id] = att["filename"]
-            
-            while self.filecounter >= 20:
-                os.remove(self.files.pop(list(self.files.keys())[0], None))
-                
 
+                path = "./files/"
+                if not os.path.exists(path):
+                    os.makedirs(path)
+
+                with open(f"./files/{att['filename']}", 'wb') as handler:
+                    handler.write(data)
+                    self.files[message.id] = f"./files/{att['filename']}"
+            
+            if len(os.listdir("./files/")) >= 20:
+                file = self.files.popitem(last=False)
+                os.remove(file)
+                
 
     async def create_embed(self, title, content, channel, color, author):
         name = author.nick if author.nick else author.name 
@@ -67,8 +72,9 @@ class Logger:
             await self.bot.send_message(self.logging_channel, embed=emb)
 
             if message.id in self.files:
-                await self.bot.send_file(self.logging_channel, self.files[message.id])
-                os.remove(self.files.pop(message.id, None))
+                file = self.files.pop(message.id)
+                await self.bot.send_file(self.logging_channel, file)
+                os.remove(file)
 
     
     async def on_message_edit(self, before, after):
@@ -85,8 +91,8 @@ class Logger:
             return True
 
         if self.check(before.author) and before.content != after.content:
-            before_clean = before.clean_content.replace("```", "<code>")
-            after_clean = after.clean_content.replace("```", "<code>")
+            before_clean = before.clean_content.replace("```", " <code> ")
+            after_clean = after.clean_content.replace("```", " <code> ")
             content = f"```{before_clean}```\n```{after_clean}```"
 
             emb = await self.create_embed("✏️ Message edited", content, 
@@ -111,6 +117,13 @@ class Logger:
                                         None, 0x6b8ea3, member)
 
         await self.bot.send_message(self.logging_channel, embed=emb)
+
+    
+    @commands.command()
+    @is_owner()
+    async def saved(self):
+        await self.bot.say(os.listdir("./files/"))
+        await self.bot.say(self.files)
 
 
 def setup(bot):
