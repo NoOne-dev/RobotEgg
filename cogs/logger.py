@@ -64,7 +64,7 @@ class Logger:
             content = f"```{before.content}```\n```{after.content}```"
 
             emb = await self.create_embed("✏️ Message edited", content, 
-                                        before.channel.nam, e0x37a4d3, before.author)
+                                        before.channel.name, e0x37a4d3, before.author)
 
             await self.bot.send_message(self.logging_channel, embed=emb)
 
