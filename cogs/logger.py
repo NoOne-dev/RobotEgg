@@ -1,4 +1,6 @@
 import discord
+import requests
+import os
 from discord.ext import commands
 from config import config
 
@@ -13,6 +15,9 @@ class Logger:
     def __init__(self, bot):
         self.bot = bot
         self.logging_channel = bot.get_channel(config["channels"]["logging"])
+        self.filecounter = 0
+        self.sizecounter = 0
+        self.files = {}
 
     
     def check(self, author):
@@ -22,6 +27,23 @@ class Logger:
     async def on_ready(self):
         if not self.logging_channel:
             self.logging_channel = self.bot.get_channel(config["channels"]["logging"])
+
+    
+    async def on_message(self, message):
+        if len(message.attachments) != 0:
+            for att in message.attachments:
+                if att["size"] >= 5000000:
+                    continue
+                data = requests.get(att["url"]).content
+                with open(att["filename"], 'wb') as handler:
+                    handler.write(data)
+                    sizecounter += att["size"]
+                    filecounter += 1
+                    files[message.id] = att["filename"]
+            
+            while filecounter >= 20 or sizecounter >= 100000000:
+                os.remove(list(self.files)[0])
+                
 
 
     async def create_embed(self, title, content, channel, color, author):
@@ -40,13 +62,14 @@ class Logger:
     async def on_message_delete(self, message):
         """Fires when somebody deletes a message"""
 
-        print(message.attachments)
-
         if self.check(message.author):
             emb = await self.create_embed("🗑️ Message deleted", message.content, 
                                         message.channel.name, 0xd33751, message.author)
 
             await self.bot.send_message(self.logging_channel, embed=emb)
+
+            if message.id in self.files:
+                 send_file(self.logging_channel, self.files["id"])
 
     
     async def on_message_edit(self, before, after):
