@@ -16,7 +16,6 @@ class Logger:
         self.bot = bot
         self.logging_channel = bot.get_channel(config["channels"]["logging"])
         self.filecounter = 0
-        self.sizecounter = 0
         self.files = {}
 
     
@@ -37,11 +36,10 @@ class Logger:
                 data = requests.get(att["url"]).content
                 with open(att["filename"], 'wb') as handler:
                     handler.write(data)
-                    self.sizecounter += att["size"]
                     self.filecounter += 1
                     self.files[message.id] = att["filename"]
             
-            while self.filecounter >= 20 or self.sizecounter >= 100000000:
+            while self.filecounter >= 20:
                 os.remove(self.files.pop(list(self.files.keys())[0], None))
                 
 
