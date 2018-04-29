@@ -56,7 +56,7 @@ class Logger:
     async def on_member_remove(self, member):
         """Fires when somebody joins"""
 
-        emb = await self.create_embed("😔 Member left", content=None, 
+        emb = await self.create_embed("😔 Member left", None, 
                                        0x6b8ea3, member)
 
         await self.bot.send_message(self.logging_channel, embed=emb)
