@@ -96,7 +96,7 @@ class Birthday:
             if users:
                 for user in users:
                     if notified is None or user.uid not in notified:
-                        channel = self.bot.get_channel('346250610020057088')
+                        channel = self.bot.get_channel(config["channels"]["general"])
                         age = self._ordinal(date.year - user.birthday.year)
                         msg = f":tada: Happy {age} birthday to <@!{user.uid}>! :tada:"
                         await self.bot.send_message(channel, msg)
