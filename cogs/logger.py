@@ -40,6 +40,8 @@ class Logger:
     async def on_message_delete(self, message):
         """Fires when somebody deletes a message"""
 
+        print(message.attachments)
+
         if self.check(message.author):
             emb = await self.create_embed("🗑️ Message deleted", message.content, 
                                         message.channel.name, 0xd33751, message.author)
