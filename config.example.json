@@ -1,0 +1,43 @@
+{
+  "tokens": {
+    "discord": "discord API key",
+    "twitch": "twitch API key"
+  },
+
+  "prefix": "!",
+
+  "owner_ids": ["Owner ID"],
+
+  "channels": {
+    "bot-commands": "channel ID",
+    "testing": "channel ID"
+  },
+
+  "roles": {
+    "voice": "in-voice",
+    "mod": "Mod",
+    "muted": "Temp Silenced"
+  },
+
+  "active_extensions": [
+    "cogs.voice_toggle",
+    "cogs.status",
+    "cogs.joke",
+    "cogs.bible",
+    "cogs.presence",
+    "cogs.react",
+    "cogs.admin"
+  ],
+
+  "streamers": {
+    "main": "Northernlion", 
+    "other": [
+      "Northernlion", "Rockleesmile", "JSmithOTI", "Last_grey_wolf", 
+      "Alpacapatrol", "CobaltStreak", "MichaelAlFox", "Baertaffy", 
+      "dangheesling", "Sinvicta", "Lovelymomo", "Mathasgames", 
+      "Flackblag", "Roundtablepodcast"
+    ]
+  },
+
+  "description": "A bot created for Eggserver Alpha to accomplish all sorts of tasks."
+}
