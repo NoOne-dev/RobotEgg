@@ -51,10 +51,10 @@ class Logger:
         """Fires when somebody edits a message"""
 
         if not before.embeds and after.embeds:
-            return false
+            return False
 
-        if not before.pinned and after.pinned:
-            emb = await self.create_embed("📌 Message pinned", before.content, 
+        if before.pinned != after.pinned:
+            emb = await self.create_embed("📌 Message changed pin state", before.content, 
                                         before.channel.name, 0x37a4d3, before.author)
 
             await self.bot.send_message(self.logging_channel, embed=emb)
