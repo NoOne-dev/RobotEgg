@@ -11,9 +11,10 @@ class Logger:
     """Log events"""
 
     def __init__(self, bot):
-        print(config["channels"])
         self.bot = bot
         self.logging_channel = bot.get_channel(config["channels"]["logging"])
+        print(config["channels"]["logging"])
+        print self.logging_channel
 
     async def create_embed(self, title, content, color, author):
         name = author.nick if author.nick else author.name
