@@ -8,21 +8,43 @@ from cogs.utils.create_error import create_error
 from cogs.utils.checks import channels_allowed
 from cogs.utils.checks import is_owner
 from cogs.utils.checks import is_mod
-import aiohttp
+from sqlalchemy import create_engine
+from sqlalchemy import Column, String, Integer, DateTime
+from sqlalchemy import func
+from sqlalchemy.ext.declarative import declarative_base
+from sqlalchemy.orm import sessionmaker
+
 
 """
 Keeps track of strikes
 """
 
-class BetaStrike:
+db = create_engine(os.environ['DATABASE_URL'])
+Base = declarative_base()
+
+
+class Strike_Table(Base):
+    __tablename__ = "warning_table"
+    index = Column(Integer, primary_key=True, autoincrement=True)
+    user_id = Column(String)
+    created_by = Column(String)
+    created_on = Column(DateTime)
+    reason = Column(String)
+    notes = Column(String)
+
+
+Session = sessionmaker(db)
+session = Session()
+Base.metadata.create_all(db)
+
+
+class Strike:
     """Keep track of user strikes"""
     def __init__(self, bot):
         self.bot = bot
         self.queue = []
-        self.BASE_URL = "https://qtto.pythonanywhere.com"
-        self.MAX_STRIKE_POINTS = 12
-        self.API_KEY = config["tokens"]["strike"]
-        
+
+
 
     async def _deletion_queue(self, message=None, delete=False):
         """Set messages to delete"""
@@ -41,6 +63,55 @@ class BetaStrike:
                     return
             except Exception as e:
                 print(e)
+
+
+
+    def _get_strike_message(self, user_id, ids=False):
+        """Generate message showing strikes"""
+        strikes = session.query(Strike_Table).filter_by(user_id=user_id).all()
+        id_list = {}
+
+        message = f"**Strikes for <@!{user_id}>**\n"
+
+        if len(strikes) == 0:
+            message = "There are no strikes for this user."
+        else:
+            count = 1
+            for strike in strikes:
+                if ids:
+                    id_list[count] = strike.index
+
+                message += f"\n**Strike {count}:** \n"
+                message += f"    _Date:_ {strike.created_on.year}-{strike.created_on.month}-{strike.created_on.day}\n"
+                message += f"    _By:_ <@!{strike.created_by}>\n"
+                message += f"    _Reason:_ {strike.reason}\n"
+                if strike.notes:
+                    message += f"    _Notes:_ {strike.notes}\n\n"
+                count += 1
+
+        if ids:
+            return message, id_list
+        return message
+
+
+
+    async def _get_more_info(self, id_dict):
+        """Waits for user to provide a number to generate a strike list for"""
+
+        def check(message):
+            """Checks if the given user was present in the list"""
+            if message.content in id_dict:
+                return True
+            return False
+
+        msg = await self.bot.wait_for_message(timeout=30.0, check=check)
+
+        if msg:
+            user_id = id_dict[msg.content]
+            await self._deletion_queue(msg)
+            msg = self._get_strike_message(user_id)
+            await self.bot.say(msg)
+
 
 
     async def _confirm_action(self, confirmation, mod):
@@ -144,31 +215,6 @@ class BetaStrike:
         return resp
 
 
-    async def _get_tier(self, mod):
-        """Gets the strike tier"""
-
-        def check(message):
-            """Check if the strike tier exists"""
-            try:
-                int(message.content) < 6 and int(message.content) > 0
-                return True
-            except:
-                return False
-
-        message = "Provide a tier (1-5) for this strike (guidelines: https://vgy.me/3KgA3V.png)"
-        message += "\n_1: green_\n_2: yellow_\n_3: orange_\n_4: red_\n_5: carmine_"
-        msg = await self.bot.say(message)
-        await self._deletion_queue(msg)
-
-        user_msg = await self.bot.wait_for_message(timeout=120.0, author=mod, check=check)
-        if user_msg and not user_msg.attachments:
-            await self._deletion_queue(user_msg)
-
-        resp = user_msg.clean_content if user_msg else False
-
-        return resp
-
-
 
     async def _parse_user(self, ctx, author=False):
         """Parse user from message"""
@@ -206,29 +252,9 @@ class BetaStrike:
         elif mentions == 0 and author:
             return ctx.message.author
 
-        await self.bot.say(content=None, embed=create_error("- no user found in your message"))
+        await self.bot.say(content=None, embed=create_error("no user found in your message"))
         return False
 
-
-    async def _get_user_strikes(self, id):
-        headers = {"authorization": self.API_KEY}
-        text = "" 
-        # Get the strikes and the strike IDs for the specified user
-        async with aiohttp.ClientSession() as session:
-            async with session.get(f'{self.BASE_URL}/user/{id}', headers=headers) as resp:
-                try:
-                    text = await resp.json()
-                except:
-                    await self.bot.say(content=None, embed=create_error("- something went wrong getting strikes"))
-                    return False
-        
-        try:
-            text['user']
-        except:
-            await self.bot.say(content=None, embed=create_error("- this user doesn't have any strikes, it seems"))
-            return False
-        
-        return text
 
 
     @commands.command(pass_context=True)
@@ -247,6 +273,7 @@ class BetaStrike:
 
         mod = ctx.message.author
         await self._deletion_queue(ctx.message)
+        date = datetime.datetime.now()
 
         if not await self._confirm_action(f"Strike: <@!{user.id}>. Is this correct?", mod):
             return await cancel_action()
@@ -257,54 +284,47 @@ class BetaStrike:
 
         notes = await self._get_notes(mod) #Get any further notes
 
-        tier_id = await self._get_tier(mod) #Get any further notes
-        if not tier_id:
-            return await cancel_action()
-
-        if not await self._confirm_action(f"Giving <@!{user.id}> a tier {tier_id} strike for {reason}. Is this correct?", mod):
+        if not await self._confirm_action(f"Striking <@!{user.id}> for {reason}. Is this correct?", mod):
             return await cancel_action()
 
         notes = '' if not notes else notes
 
-        strike = {
-            "user_id": user.id,
-            "created_by": mod.id,
-            "reason": reason,
-            "attachment": notes,
-            "tier_id": tier_id
-        }
-        
-        headers = {"authorization": self.API_KEY}
-        text = ""
+        strike = Strike_Table(
+            user_id=user.id,
+            created_by=mod.id,
+            created_on=date,
+            reason=reason,
+            notes=notes
+        )
+        session.add(strike)
 
-        async with aiohttp.ClientSession() as session:
-            async with session.post(f'{self.BASE_URL}/strike', data=strike, headers=headers) as resp:
-                text = await resp.json()
+        try:
+            session.commit() # Add it to the DB
+        except Exception as e:
+            print(e)
+            await self.bot.say(content=None, embed=create_error("entering strike into database: {e}"))
+
+        # Tell the mod and the user about the strike
+        count = session.query(Strike_Table).filter_by(user_id=user.id).count()
 
         mod_message = f"<@!{mod.id}> has given user <@!{user.id}> a strike.\n\n"
         mod_message += f"**Reason:** {reason}\n"
         if notes:
             mod_message += f"**Notes:** {notes}\n"
-        
-        
-        mod_message += f"\nUser has **{text['user_points']} strike points**. "
-        if text['user_points'] < self.MAX_STRIKE_POINTS:
-            mod_message += f"Mute this user for {text['mute']} hours."
-        else:
-            mod_message += "**This user should be banned.**"
-        mod_message += f"\nView strikes at {self.BASE_URL}/#user/{user.id}"
+        mod_message += f"\nUser has **{count} {'strikes' if count > 1 else 'strike'}**."
         await self.bot.say(mod_message)
         await self._deletion_queue(None, delete=True)
 
-        user_message = f"Hi {user.name},\n\nYou have received a strike in Eggserver.\n\n"
+
+        user_message = f"Hi {user.name},\n\nYou have received a strike in Eggserver Alpha.\n\n"
         user_message += f"**Reason:** {reason}.\n"
-        user_message += f"You now have **{text['user_points']} strike points**, "
-        user_message += f"view your strikes at {self.BASE_URL}/#user/{user.id}.\n"
+        user_message += f"You have **{count} {'strikes' if count > 1 else 'strike'}**.\n\n"
         user_message += f"If you have any further questions or concerns, please ask the mods."
         try:
             await self.bot.send_message(user, content=user_message)
         except Exception as e:
             await self.bot.say(content=None, embed=create_error(f"DMing <@!{user.id}>. Please follow up. <@!{mod.id}>, ({e})"))
+
 
 
     @commands.command(pass_context=True)
@@ -327,36 +347,12 @@ class BetaStrike:
         mod = ctx.message.author
         await self._deletion_queue(ctx.message)
 
-        text = await self._get_user_strikes(user.id)
-        if not text:
-            return False
+        # Get the strikes and the strike IDs for the specified user
+        message, ids = self._get_strike_message(user.id, ids=True)
 
-        ids = {}
-        counter = 1
-        message = ""
-        for item in text["strikes"]:
-            strike = f"Strike {counter} ({item['tier']} tier)\n  - {item['reason']}"
-            if item['removed']:
-                strike = f"```haskell\n#REMOVED\n{strike}```\n"
-            elif item['expired']:
-                strike = f"```haskell\n#EXPIRED\n{strike}```\n"
-            else:
-                strike = f"```haskell\n{strike}```\n"
-            
-            if len(message) + len(strike) < 2000:
-                message += strike
-            else:
-                await self.bot.say(message)
-                message = strike
-            
-            if not item['expired'] and not item['removed']:
-                ids[counter] = item['id']
-            
-            counter += 1
-
-        await self.bot.say(message)
-
-        prompt_msg = await self.bot.say(content="**Strike to remove:**")
+        strike_msg = await self.bot.say(message)
+        await self._deletion_queue(strike_msg)
+        prompt_msg = await self.bot.say(content="Strike to remove:")
         await self._deletion_queue(prompt_msg)
 
         user_msg = await self.bot.wait_for_message(timeout=120.0, author=mod, check=check)
@@ -366,18 +362,14 @@ class BetaStrike:
         if not user_msg.content:
             return False
 
-        removal_message = f'<@!{mod.id}> removed strike {user_msg.content} from <@!{user.id}>.'
+        removal_message = ''
         try:
             index = ids[int(user_msg.content)]
-            data = {
-                "removed_by": mod.id
-            }
-
-            headers = {"authorization": self.API_KEY}
-            async with aiohttp.ClientSession() as session:
-                async with session.delete(f'{self.BASE_URL}/strike/{index}', data=data, headers=headers) as resp:
-                    text = await resp.json()
-            
+            record = session.query(Strike_Table).get(index)
+            session.delete(record)
+            session.commit()
+            removal_message += f"<@!{mod.id}> removed strike from <@!{user.id}>.\n"
+            removal_message += f"Removed item: {record.reason}"
             await self.bot.say(removal_message)
         except Exception as e:
             await self.bot.say(content=None, embed=create_error(f"deleting from DB: {e}"))
@@ -386,43 +378,65 @@ class BetaStrike:
         await self._deletion_queue(delete=True)
 
 
-    @commands.command(pass_context=True)
+
+    @commands.command(pass_context=True, invoke_without_command=True)
     @channels_allowed(["mod-commands"])
     @is_mod()
-    async def strikes(self, ctx):
-        """Check user"""
+    async def table(self, ctx):
+        """Generate complete list of strikes"""
+        members = ctx.message.server.members
 
-        user = await self._parse_user(ctx)
+        message = '`,-------------------------------------------------------------.`\n'
+        message += '`| #   | Amount  | User                                        |`'
+        id_dict = {}
+        count = 1
+        for row in session.query(Strike_Table.user_id).distinct():
+            uid = row[0] #UID
+            id_dict[str(count)] = uid #index to ID
+            strikes = session.query(Strike_Table).filter_by(user_id=row).count()
+            strikes = f"\n`| {count}{((4-len(str(count)))*' ')}| {strikes}{((8-len(str(strikes)))*' ')}|`  <@!{uid}>"
+
+
+            if not any(member.id == uid for member in members):
+                strikes += " - 💀"
+
+            if len(message) + len(strikes) < 1000:
+                message += strikes
+            else:
+                await self.bot.say(message)
+                message = strikes
+            count += 1
+
+        message += "\n`'-------------------------------------------------------------'`"
+        await self.bot.say(message)
+
+        # If a mod enters a number give more info about the strikes of that user
+        await self._get_more_info(id_dict)
+        await self._deletion_queue(None, delete=True)
+
+
+
+    @commands.command(pass_context=True, invoke_without_command=True)
+    async def strikes(self, ctx):
+        """Check strikes of user or self"""
+        user = await self._parse_user(ctx, author=False) if ctx.message.channel.id == \
+        config["channels"]["mod-commands"] else await self._parse_user(ctx, author=True)
+                
         if not user:
             return False
 
-        text = await self._get_user_strikes(user.id)
-        if not text:
-            return False
+        message = self._get_strike_message(user.id)
 
-        counter = 1
-        message = ""
-        message += f"Information for user <@!{text['user']['id']}>. Strike points: `{text['user']['strike_points']}/{self.MAX_STRIKE_POINTS}`."
-        for item in text["strikes"]:
-            strike = f"Strike {counter} ({item['tier']} tier)\n  - {item['reason']}"
-            if item['removed']:
-                strike = f"```haskell\n#REMOVED\n{strike}```\n"
-            elif item['expired']:
-                strike = f"```haskell\n#EXPIRED\n{strike}```\n"
+        if ctx.message.channel.id == config["channels"]["mod-commands"]:
+            await self.bot.say(message)
+        else:
+            if ctx.message.author.id == user.id:
+                await self.bot.send_message(user, content=message)
             else:
-                strike = f"```haskell\n{strike}```\n"
-            
-            if len(message) + len(strike) < 2000:
-                message += strike
-            else:
-                await self.bot.say(message)
-                message = strike
-            
-            counter += 1
+                await self.bot.say(content=None, embed=create_error("- you may only view your own strikes"))
 
-        await self.bot.say(message)
 
 
 def setup(bot):
-    bot.add_cog(BetaStrike(bot))
+    bot.add_cog(Strike(bot))
     

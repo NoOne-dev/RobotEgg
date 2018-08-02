@@ -26,3 +26,11 @@ def is_mod():
         mod_role = discord.utils.get(ctx.message.author.server.roles, name=config["roles"]["mod"])
         return mod_role in ctx.message.author.roles
     return commands.check(predicate)
+
+
+def is_manager():
+    def predicate(ctx):
+        manager_role = discord.utils.get(ctx.message.author.server.roles, name=config["roles"]["manager"])
+        mod_role = discord.utils.get(ctx.message.author.server.roles, name=config["roles"]["mod"])
+        return mod_role in ctx.message.author.roles or manager_role in ctx.message.author.roles
+    return commands.check(predicate)
